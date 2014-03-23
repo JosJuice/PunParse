@@ -27,7 +27,6 @@ public class PunParse {
                 Document document;
                 try {
                     document = Jsoup.parse(files[i], null);
-                    System.out.println(document);
                     System.out.println("Processed file " +
                                        (i + 1) + "/" + files.length + ": " +
                                        files[i].getName());
