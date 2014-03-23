@@ -29,10 +29,11 @@ public class PunParse {
                     document = Jsoup.parse(files[i], null);
                     System.out.println(document);
                     System.out.println("Processed file " +
-                                       (i + 1) + "/" + files.length);
+                                       (i + 1) + "/" + files.length + ": " +
+                                       files[i].getName());
                 } catch (IOException e) {
                     System.out.println("Could not read file " +
-                                       (i + 1) + "/" + files.length +
+                                       (i + 1) + "/" + files.length + ": " +
                                        files[i].getName());
                 }
             }
