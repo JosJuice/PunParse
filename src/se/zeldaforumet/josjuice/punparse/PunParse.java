@@ -7,9 +7,17 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author Jos
+ * @author JosJuice
  */
 public class PunParse {
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO: error handling
+        parseFolder(args[0]);
+    }
     
     public static void parseFolder(String pathname) {
         File folder = new File(pathname);
@@ -31,14 +39,6 @@ public class PunParse {
         } else {
             System.out.println("No files were found.");
         }
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO: error handling
-        parseFolder(args[0]);
     }
 
 }
