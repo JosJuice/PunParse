@@ -32,7 +32,7 @@ public class PunParse {
                                        (i + 1) + "/" + files.length + ": " +
                                        files[i].getName());
                 } catch (IOException e) {
-                    System.out.println("Could not read file " +
+                    System.err.println("Could not read file " +
                                        (i + 1) + "/" + files.length + ": " +
                                        files[i].getName());
                 }
