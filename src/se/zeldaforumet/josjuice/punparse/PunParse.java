@@ -19,6 +19,10 @@ public class PunParse {
         parseFolder(args[0]);
     }
     
+    /**
+     * Parses every file in a folder.
+     * @param pathname pathname of folder
+     */
     public static void parseFolder(String pathname) {
         File folder = new File(pathname);
         File[] files = folder.listFiles();
@@ -41,6 +45,10 @@ public class PunParse {
         }
     }
     
+    /**
+     * Parses an HTML document.
+     * @param document HTML document to parse
+     */
     public static void parseDocument(Document document) {
         if (!document.getElementsByClass("pun").isEmpty()) {
             if (document.getElementById("punindex") != null) {
