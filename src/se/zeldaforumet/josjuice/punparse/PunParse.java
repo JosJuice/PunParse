@@ -49,21 +49,19 @@ public class PunParse {
      * @param document HTML document to parse
      */
     public static void parseDocument(Document document) {
-        if (!document.getElementsByClass("pun").isEmpty()) {
-            if (document.getElementById("punindex") != null) {
-                parseIndex(document);
-            } else if (document.getElementById("punmisc") != null) {
-                parseMisc(document);
-            } else if (document.getElementById("punprofile") != null) {
-                parseProfile(document);
-            } else if (document.getElementById("punuserlist") != null) {
-                parseUserList(document);
-            } else if (document.getElementById("punviewforum") != null) {
-                parseViewForum(document);
-            } else if (document.getElementById("punviewpoll") != null || 
-                       document.getElementById("punviewtopic") != null) {
-                parseViewTopic(document);
-            }
+        if (document.getElementById("punviewtopic") != null ||
+                document.getElementById("punviewpoll") != null) {
+            parseViewTopic(document);
+        } else if (document.getElementById("punprofile") != null) {
+            parseProfile(document);
+        } else if (document.getElementById("punviewforum") != null) {
+            parseViewForum(document);
+        } else if (document.getElementById("punuserlist") != null) {
+            parseUserList(document);
+        } else if (document.getElementById("punmisc") != null) {
+            parseMisc(document);
+        } else if (document.getElementById("punindex") != null) {
+            parseIndex(document);
         }
     }
     
