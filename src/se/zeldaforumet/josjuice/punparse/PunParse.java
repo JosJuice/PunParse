@@ -15,7 +15,6 @@ public class PunParse {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO: error handling
         parseFolder(args[0]);
     }
     
