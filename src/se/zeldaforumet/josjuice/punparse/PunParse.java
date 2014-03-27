@@ -64,10 +64,6 @@ public class PunParse {
             // not done
         } else if (document.getElementById("punviewforum") != null) {
             // not done
-        } else if (document.getElementById("punuserlist") != null) {
-            // not done
-        } else if (document.getElementById("punmisc") != null) {
-            // not done
         } else if (document.getElementById("punindex") != null) {
             // not done
         }
