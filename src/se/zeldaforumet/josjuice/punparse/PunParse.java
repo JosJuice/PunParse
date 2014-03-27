@@ -47,7 +47,8 @@ public class PunParse {
                 }
             }
         } else {
-            System.out.println("No files were found.");
+            System.err.println("The directory could not be read: " +
+                               directory.getPath());
         }
     }
     
