@@ -59,42 +59,18 @@ public class PunParse {
     public static void parseDocument(Document document) {
         if (document.getElementById("punviewtopic") != null ||
                 document.getElementById("punviewpoll") != null) {
-            parseViewTopic(document);
+            // not done
         } else if (document.getElementById("punprofile") != null) {
-            parseProfile(document);
+            // not done
         } else if (document.getElementById("punviewforum") != null) {
-            parseViewForum(document);
+            // not done
         } else if (document.getElementById("punuserlist") != null) {
-            parseUserList(document);
+            // not done
         } else if (document.getElementById("punmisc") != null) {
-            parseMisc(document);
+            // not done
         } else if (document.getElementById("punindex") != null) {
-            parseIndex(document);
+            // not done
         }
-    }
-    
-    public static void parseIndex(Document document) {
-        System.out.println("Found index");
-    }
-    
-    public static void parseMisc(Document document) {
-        System.out.println("Found misc");
-    }
-    
-    public static void parseProfile(Document document) {
-        System.out.println("Found profile");
-    }
-    
-    public static void parseUserList(Document document) {
-        System.out.println("Found userlist");
-    }
-    
-    public static void parseViewForum(Document document) {
-        System.out.println("Found viewforum");
-    }
-    
-    public static void parseViewTopic(Document document) {
-        System.out.println("Found viewtopic");
     }
 
 }
