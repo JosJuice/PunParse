@@ -25,7 +25,7 @@ public class PunParse {
     
     /**
      * Parses every file in a directory, including files in subdirectories.
-     * @param directory directory containing files to parse
+     * @param directory directory containing zero or more files to parse
      */
     public static void parseDirectory(File directory) {
         File[] files = directory.listFiles();
