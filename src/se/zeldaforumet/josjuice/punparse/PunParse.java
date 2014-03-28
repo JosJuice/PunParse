@@ -1,7 +1,7 @@
 package se.zeldaforumet.josjuice.punparse;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.*;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
