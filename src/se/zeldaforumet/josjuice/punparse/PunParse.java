@@ -1,7 +1,11 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import se.zeldaforumet.josjuice.punparse.data.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,13 +63,18 @@ public class PunParse {
     public static void parseDocument(Document document) {
         if (document.getElementById("punviewtopic") != null ||
                 document.getElementById("punviewpoll") != null) {
-            // not done
+            Elements postElements = document.getElementsByClass("blockpost");
+            for (Element postElement : postElements) {
+                Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
+                // TODO
+            }
+            // TODO
         } else if (document.getElementById("punprofile") != null) {
-            // not done
+            // TODO
         } else if (document.getElementById("punviewforum") != null) {
-            // not done
+            // TODO
         } else if (document.getElementById("punindex") != null) {
-            // not done
+            // TODO
         }
     }
 
