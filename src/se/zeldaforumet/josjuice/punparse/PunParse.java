@@ -20,7 +20,7 @@ public class PunParse {
     }
     
     /**
-     * Parses every file in a directory.
+     * Parses every file in a directory, including files in subdirectories.
      * @param directory directory containing files to parse
      */
     public static void parseDirectory(File directory) {
