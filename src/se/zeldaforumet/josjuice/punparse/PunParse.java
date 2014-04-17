@@ -21,7 +21,7 @@ public class PunParse {
      */
     public static void main(String[] args) {
         System.out.println("Connecting to SQL database...");
-        try (Database database = new Database(args[1])) {
+        try (Database database = new Database(args[1], args[2])) {
             File directory = new File(args[0]);
             parseDirectory(directory, database);
         } catch (ClassNotFoundException e) {
