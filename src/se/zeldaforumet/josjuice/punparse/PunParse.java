@@ -26,7 +26,7 @@ public class PunParse {
         } catch (ClassNotFoundException e) {
             System.err.println("The SQL driver could not be loaded.");
         } catch (SQLException e) {
-            System.err.println("SQL error: " + e);
+            System.err.println(e);
         }
     }
     
