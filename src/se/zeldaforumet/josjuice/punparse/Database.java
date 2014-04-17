@@ -20,7 +20,6 @@ public class Database implements AutoCloseable {
      * @throws SQLException if something goes wrong on the SQL side
      */
     public Database(String url) throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
         connection = DriverManager.getConnection("jdbc:" + url);
     }
     
