@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * @author JosJuice
@@ -19,22 +20,30 @@ public class PunParse {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        File directory = new File(args[0]);
-        parseDirectory(directory);
+        try (Database database = new Database(args[1])) {
+            File directory = new File(args[0]);
+            parseDirectory(directory, database);
+        } catch (ClassNotFoundException e) {
+            System.err.println("The SQL driver could not be loaded.");
+        } catch (SQLException e) {
+            System.err.println("SQL error: " + e);
+        }
     }
     
     /**
      * Parses every file in a directory, including files in subdirectories.
+     * The data from the files will be placed in a database.
      * @param directory directory containing zero or more files to parse
+     * @param database database to place data into
      */
-    public static void parseDirectory(File directory) {
+    public static void parseDirectory(File directory, Database database) {
         File[] files = directory.listFiles();
         if (files != null) {
             for (int i = 0; i < files.length; i++) {
                 if (files[i].isDirectory()) {
                     // Parse subdirectories recursively
                     System.out.println("Entering subdirectory...");
-                    parseDirectory(files[i]);
+                    parseDirectory(files[i], database);
                     System.out.println("Exiting subdirectory...");
                 } else {
                     try {
