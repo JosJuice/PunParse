@@ -20,6 +20,7 @@ public class PunParse {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("Connecting to SQL database...");
         try (Database database = new Database(args[1])) {
             File directory = new File(args[0]);
             parseDirectory(directory, database);
