@@ -64,6 +64,11 @@ public class Database implements AutoCloseable {
                 "edited_by, topic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
+    /**
+     * Inserts a post into the database.
+     * @param post the post to insert
+     * @throws SQLException if something goes wrong on the SQL side
+     */
     public void insert(Post post) throws SQLException {
         insertPost.setInt(1, post.getId());
         insertPost.setString(2, post.getPoster());
