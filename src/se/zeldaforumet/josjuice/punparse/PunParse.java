@@ -49,7 +49,7 @@ public class PunParse {
                 } else {
                     try {
                         Document document = Jsoup.parse(files[i], null);
-                        parseDocument(document);
+                        parseDocument(document, database);
                         System.out.println("Processed file " +
                                            (i + 1) + "/" + files.length + ": " +
                                            files[i].getName());
@@ -70,13 +70,17 @@ public class PunParse {
      * Parses an HTML document.
      * @param document HTML document to parse
      */
-    public static void parseDocument(Document document) {
+    public static void parseDocument(Document document, Database database) {
         if (document.getElementById("punviewtopic") != null ||
                 document.getElementById("punviewpoll") != null) {
             Elements postElements = document.getElementsByClass("blockpost");
             for (Element postElement : postElements) {
                 Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
-                // TODO
+                try {
+                    database.insert(post);
+                } catch (SQLException e) {
+                    System.err.println(e);
+                }
             }
             // TODO
         } else if (document.getElementById("punprofile") != null) {
