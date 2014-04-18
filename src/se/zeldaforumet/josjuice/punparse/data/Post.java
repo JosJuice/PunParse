@@ -11,50 +11,14 @@ public class Post {
     public static final int UNKNOWN_DATE = 0;
     private static final String POSTER_ID_DELIMITER = "id=";
     
-    /**
-     * Post ID
-     */
     private int id;
-    
-    /**
-     * Username of the user that made the post
-     */
     private String poster;
-    
-    /**
-     * ID of the user that made the post
-     */
     private int posterId;
-    
-    /**
-     * The content of the post
-     */
     private String message;
-    
-    /**
-     * If true, text will never be converted to graphical smilies
-     * when the post is displayed
-     */
     private boolean hideSmilies;
-    
-    /**
-     * Date posted (Unix timestamp)
-     */
     private int posted;
-    
-    /**
-     * Date last edited (Unix timestamp), or UNKNOWN_DATE if not edited
-     */
     private int edited;
-    
-    /**
-     * Username of the user that last edited the post, or null if not edited
-     */
     private String editedBy;
-    
-    /**
-     * ID of the topic containing this post
-     */
     private int topicId;
     
     /**
@@ -113,38 +77,66 @@ public class Post {
         this.topicId = topicId;
     }
     
+    /**
+     * @return Post ID
+     */
     public int getId() {
         return id;
     }
     
+    /**
+     * @return Username of the user that made the post
+     */
     public String getPoster() {
         return poster;
     }
     
+    /**
+     * @return ID of the user that made the post
+     */
     public int getPosterId() {
         return posterId;
     }
     
+    /**
+     * @return The content of the post
+     */
     public String getMessage() {
         return message;
     }
     
+    /**
+     * @return If true, text will never be converted to graphical smilies
+     * when the post is displayed
+     */
     public boolean getHideSmilies() {
         return hideSmilies;
     }
     
+    /**
+     * @return Date posted (Unix timestamp)
+     */
     public int getPosted() {
         return posted;
     }
     
+    /**
+     * @return Date last edited (Unix timestamp), or UNKNOWN_DATE if unedited
+     */
     public int getEdited() {
         return edited;
     }
     
+    /**
+     * @return Username of last user that edited the post, or null if unedited
+     */
     public String getEditedBy() {
         return editedBy;
     }
     
+    /**
+     * @return ID of the topic containing this post
+     */
     public int getTopicId() {
         return topicId;
     }
