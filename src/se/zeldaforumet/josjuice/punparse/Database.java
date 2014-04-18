@@ -44,7 +44,7 @@ public class Database implements AutoCloseable {
     private void setUpDatabase() throws SQLException {
         // Create tables
         Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE posts (" +
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
                 "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
                 "poster VARCHAR(200) NOT NULL DEFAULT ''," +
                 "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
@@ -60,9 +60,10 @@ public class Database implements AutoCloseable {
                 ") ENGINE=MyISAM;");
         
         // Prepare the prepared statements
-        insertPost = connection.prepareStatement("INSERT INTO posts (id, " +
-                "poster, poster_id, message, hide_smilies, posted, edited, " +
-                "edited_by, topic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        insertPost = connection.prepareStatement("INSERT IGNORE INTO posts " +
+                "(id, poster, poster_id, message, hide_smilies, " +
+                "posted, edited, edited_by, topic_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     /**
