@@ -11,6 +11,9 @@ public class Post {
     public static final int UNKNOWN_DATE = 0;
     private static final String POSTER_ID_DELIMITER = "id=";
     
+    private boolean isEdited;
+    
+    // All of the following variables correspond to database columns.
     private int id;
     private String poster;
     private int posterId;
@@ -70,11 +73,20 @@ public class Post {
         posted = UNKNOWN_DATE;
         
         // TODO find out if edited
+        isEdited = false;
         edited = UNKNOWN_DATE;
         editedBy = null;
         
         // Find topic ID (well, there's not much finding going on, really :))
         this.topicId = topicId;
+    }
+    
+    /**
+     * @return true if the post has been edited. (It is possible to edit a post
+     * without marking it as edited if the silent edit feature is used.)
+     */
+    public boolean isEdited() {
+        return isEdited;
     }
     
     /**

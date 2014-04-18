@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 /**
  * Connects to an SQL database and inserts data.
@@ -76,8 +77,13 @@ public class Database implements AutoCloseable {
         insertPost.setString(4, post.getMessage());
         insertPost.setBoolean(5, post.getHideSmilies());
         insertPost.setInt(6, post.getPosted());
-        insertPost.setInt(7, post.getEdited());
-        insertPost.setString(8, post.getEditedBy());
+        if (post.isEdited()) {
+            insertPost.setInt(7, post.getEdited());
+            insertPost.setString(8, post.getEditedBy());
+        } else {
+            insertPost.setNull(7, Types.INTEGER);
+            insertPost.setNull(8, Types.VARCHAR);
+        }
         insertPost.setInt(9, post.getTopicId());
         insertPost.executeUpdate();
     }
