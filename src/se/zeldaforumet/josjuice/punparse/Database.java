@@ -32,27 +32,25 @@ public class Database implements AutoCloseable {
         
         // Create tables
         Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
-            "id int(10) unsigned NOT NULL, " +
-            "poster varchar(200) NOT NULL DEFAULT '', " +
-            "poster_id int(10) unsigned NOT NULL DEFAULT '1', " +
-            "poster_ip varchar(15) DEFAULT NULL, " +
-            "poster_email varchar(50) DEFAULT NULL, " +
-            "message text, " +
-            "hide_smilies tinyint(1) NOT NULL DEFAULT '0', " +
-            "posted int(10) unsigned NOT NULL DEFAULT '0', " +
-            "edited int(10) unsigned DEFAULT NULL, " +
-            "edited_by varchar(200) DEFAULT NULL, " +
-            "topic_id int(10) unsigned NOT NULL DEFAULT '0', " +
-            "PRIMARY KEY (id), " +
-            "KEY posts_topic_id_idx (topic_id), " +
-            "KEY posts_multi_idx (poster_id,topic_id) " +
-        ")");
+        statement.executeUpdate("CREATE TABLE posts (" +
+                "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
+                "poster VARCHAR(200) NOT NULL DEFAULT ''," +
+                "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
+                "poster_ip VARCHAR(15)," +
+                "poster_email VARCHAR(50)," +
+                "message TEXT," +
+                "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
+                "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                "edited INT(10) UNSIGNED," +
+                "edited_by VARCHAR(200)," +
+                "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                "PRIMARY KEY (id)" +
+                ") ENGINE=MyISAM;");
         
         // Prepare the prepared statements
         insertPost = connection.prepareStatement("INSERT INTO posts (id, " +
                 "poster, poster_id, message, hide_smilies, posted, edited, " +
-                "edited_by, topic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                "edited_by, topic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     @Override public void close() throws SQLException {
