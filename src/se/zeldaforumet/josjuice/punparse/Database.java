@@ -26,8 +26,7 @@ public class Database implements AutoCloseable {
      * @param database the name of the database
      * @throws SQLException if something goes wrong on the SQL side
      */
-    public Database(String url, String database) throws ClassNotFoundException,
-                                                        SQLException {
+    public Database(String url, String database) throws SQLException {
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
         setUpDatabase();

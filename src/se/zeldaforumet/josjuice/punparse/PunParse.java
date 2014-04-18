@@ -24,8 +24,6 @@ public class PunParse {
         try (Database database = new Database(args[1], args[2])) {
             File directory = new File(args[0]);
             parseDirectory(directory, database);
-        } catch (ClassNotFoundException e) {
-            System.err.println("The SQL driver could not be loaded.");
         } catch (SQLException e) {
             System.err.println(e);
         }
