@@ -75,10 +75,12 @@ public class PunParse {
                 document.getElementById("punviewpoll") != null) {
             Elements postElements = document.getElementsByClass("blockpost");
             for (Element postElement : postElements) {
-                Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
                 try {
+                    Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
                     database.insert(post);
-                } catch (SQLException e) {
+                } catch (NullPointerException | IllegalArgumentException e) {
+                    System.err.println(e);
+                }catch (SQLException e) {
                     System.err.println(e);
                 }
             }
