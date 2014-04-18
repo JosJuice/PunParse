@@ -29,7 +29,18 @@ public class Database implements AutoCloseable {
                                                         SQLException {
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
-        
+        setUpDatabase();
+    }
+    
+    @Override public void close() throws SQLException {
+        connection.close();
+    }
+    
+    /**
+     * Creates all necessary tables and <code>PreparedStatement</code>s.
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    private void setUpDatabase() throws SQLException {
         // Create tables
         Statement statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE posts (" +
@@ -51,10 +62,6 @@ public class Database implements AutoCloseable {
         insertPost = connection.prepareStatement("INSERT INTO posts (id, " +
                 "poster, poster_id, message, hide_smilies, posted, edited, " +
                 "edited_by, topic_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
-    }
-    
-    @Override public void close() throws SQLException {
-        connection.close();
     }
     
     public void insert(Post post) throws SQLException {
