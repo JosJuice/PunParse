@@ -9,7 +9,6 @@ public class Post {
     
     public static final int UNKNOWN_TOPIC_ID = 0;
     public static final int UNKNOWN_DATE = 0;
-    private static final String POSTER_ID_DELIMITER = "id=";
     
     private boolean isEdited;
     
@@ -54,9 +53,9 @@ public class Post {
         // Get poster ID from profile URL
         // (this will fail if id isn't the last parameter in the URL)
         try {
+            final String DELIMITER = "id=";
             posterId = Integer.parseInt(posterUrl.substring(posterUrl.
-                                        lastIndexOf(POSTER_ID_DELIMITER) +
-                                        POSTER_ID_DELIMITER.length()));
+                       lastIndexOf(DELIMITER) + DELIMITER.length()));
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Could not determine poster ID" +
                                                "for post #" + this.id);
