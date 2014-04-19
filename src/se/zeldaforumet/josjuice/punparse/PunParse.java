@@ -65,8 +65,9 @@ public class PunParse {
     }
     
     /**
-     * Parses an HTML document.
+     * Parses an HTML document. The data will be placed in a database.
      * @param document HTML document to parse
+     * @param database database to place data into
      */
     public static void parseDocument(Document document, Database database) {
         if (document.getElementById("punviewtopic") != null ||
