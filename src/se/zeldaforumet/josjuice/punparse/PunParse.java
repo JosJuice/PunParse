@@ -80,7 +80,7 @@ public class PunParse {
                     database.insert(post);
                 } catch (NullPointerException | IllegalArgumentException e) {
                     System.err.println(e);
-                }catch (SQLException e) {
+                } catch (SQLException e) {
                     System.err.println(e);
                 }
             }
