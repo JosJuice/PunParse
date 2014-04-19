@@ -5,6 +5,6 @@ package se.zeldaforumet.josjuice.punparse.data;
  */
 public class User {
     
-    public static final int GUEST_ID = 1;
+    public static final int GUEST_ID = 1;   // In PunBB, guests must have ID 1
     
 }
