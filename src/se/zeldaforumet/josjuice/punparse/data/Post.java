@@ -47,18 +47,23 @@ public class Post {
         Element posterElement = element.getElementsByTag("dt").first();
         // Get poster username
         poster = posterElement.text();
-        // Get URL to poster's profile
-        String posterUrl = posterElement.getElementsByAttribute("href").
-                                          first().attributes().get("href");
-        // Get poster ID from profile URL
-        // (this will fail if id isn't the last parameter in the URL)
-        try {
-            final String DELIMITER = "id=";
-            posterId = Integer.parseInt(posterUrl.substring(posterUrl.
-                       lastIndexOf(DELIMITER) + DELIMITER.length()));
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Could not determine poster ID" +
-                                               "for post #" + this.id);
+        // Check if posted by guest
+        if (posterElement.getElementsByAttribute("href").isEmpty()) {
+            posterId = User.GUEST_ID;
+        } else {
+            // Get URL to poster's profile
+            String posterUrl = posterElement.getElementsByAttribute("href").
+                                             first().attributes().get("href");
+            // Get poster ID from profile URL
+            // (this will fail if id isn't the last parameter in the URL)
+            try {
+                final String DELIMITER = "id=";
+                posterId = Integer.parseInt(posterUrl.substring(posterUrl.
+                           lastIndexOf(DELIMITER) + DELIMITER.length()));
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                throw new IllegalArgumentException("Could not find poster ID" +
+                                                   "for post #" + this.id);
+            }
         }
         
         // Find message text
