@@ -29,7 +29,8 @@ public class Database implements AutoCloseable {
     public Database(String url, String database) throws SQLException {
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
-        setUpDatabase();
+        createTables();
+        prepareStatements();
     }
     
     @Override public void close() throws SQLException {
@@ -37,11 +38,10 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Creates all necessary tables and <code>PreparedStatement</code>s.
+     * Creates all necessary tables. If they already exist, nothing happens.
      * @throws SQLException if something goes wrong on the SQL side
      */
-    private void setUpDatabase() throws SQLException {
-        // Create tables
+    private void createTables() throws SQLException {
         Statement statement = connection.createStatement();
         statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
                 "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
@@ -57,8 +57,13 @@ public class Database implements AutoCloseable {
                 "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
                 "PRIMARY KEY (id)" +
                 ") ENGINE=MyISAM;");
-        
-        // Prepare the prepared statements
+    }
+    
+    /**
+     * Prepares the prepared statements.
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    private void prepareStatements() throws SQLException {
         insertPost = connection.prepareStatement("INSERT IGNORE INTO posts " +
                 "(id, poster, poster_id, message, hide_smilies, " +
                 "posted, edited, edited_by, topic_id) " +
@@ -67,6 +72,7 @@ public class Database implements AutoCloseable {
     
     /**
      * Inserts a post into the database.
+     * If the post already exists in the database, nothing happens.
      * @param post the post to insert
      * @throws SQLException if something goes wrong on the SQL side
      */
