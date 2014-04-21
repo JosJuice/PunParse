@@ -26,7 +26,7 @@ public class PunParse {
             File directory = new File(args[0]);
             parseDirectory(directory, database);
         } catch (SQLException e) {
-            System.err.println(e);
+            System.err.println("SQL error: " + e.getLocalizedMessage());
         }
     }
     
@@ -90,9 +90,10 @@ public class PunParse {
                     database.insert(post);
                 } catch (IllegalArgumentException e) {
                     errors++;
-                    System.err.println(e);
+                    System.err.println("Error in input data: " +
+                                       e.getLocalizedMessage());
                 } catch (SQLException e) {
-                    System.err.println(e);
+                    System.err.println("SQL error: " + e.getLocalizedMessage());
                 }
             }
             // TODO
