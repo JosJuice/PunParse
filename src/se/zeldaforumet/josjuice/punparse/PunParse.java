@@ -48,10 +48,16 @@ public class PunParse {
                 } else {
                     try {
                         Document document = Jsoup.parse(files[i], null);
-                        parseDocument(document, database);
-                        System.out.println("Processed file " +
-                                           (i + 1) + "/" + files.length + ": " +
-                                           files[i].getName());
+                        int errors = parseDocument(document, database);
+                        if (errors == 0) {
+                            System.out.println("Processed file " + (i + 1) +
+                                    "/" + files.length + ": " +
+                                    files[i].getName());
+                        } else {
+                            System.err.println(errors + "error(s) found when " +
+                                    "processing file " + (i + 1) + "/" +
+                                    files.length + ": " + files[i].getName());
+                        }
                     } catch (IOException e) {
                         System.err.println("Could not read file " +
                                            (i + 1) + "/" + files.length + ": " +
@@ -67,10 +73,14 @@ public class PunParse {
     
     /**
      * Parses an HTML document. The data will be placed in a database.
+     * If an individual piece of data (for instance, a post) cannot be parsed,
+     * it will be skipped and the returned error count will be increased by one.
      * @param document HTML document to parse
      * @param database database to place data into
+     * @return number of errors encountered
      */
-    public static void parseDocument(Document document, Database database) {
+    public static int parseDocument(Document document, Database database) {
+        int errors = 0;
         if (document.getElementById("punviewtopic") != null ||
                 document.getElementById("punviewpoll") != null) {
             Elements postElements = document.getElementsByClass("blockpost");
@@ -78,7 +88,8 @@ public class PunParse {
                 try {
                     Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
                     database.insert(post);
-                } catch (NullPointerException | IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
+                    errors++;
                     System.err.println(e);
                 } catch (SQLException e) {
                     System.err.println(e);
@@ -92,6 +103,7 @@ public class PunParse {
         } else if (document.getElementById("punindex") != null) {
             // TODO
         }
+        return errors;
     }
 
 }
