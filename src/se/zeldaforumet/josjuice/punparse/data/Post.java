@@ -29,46 +29,58 @@ public class Post {
      * The element should always have the <code>.blockpost</code> class.
      * @param topicId ID of the topic containing this post.
      * Use <code>UNKNOWN_TOPIC_ID</code> if unknown.
-     * @throws NullPointerException if a required child element does not exist
      * @throws IllegalArgumentException if some required data is invalid
      */
-    public Post(Element element, int topicId) throws NullPointerException,
-                                                     IllegalArgumentException {
-        // Find post ID
-        String id = element.id();
+    public Post(Element element, int topicId) throws IllegalArgumentException {
         try {
-            // Skip the first character 'p' and use the rest of the string as ID
-            this.id = Integer.parseInt(id.substring(1));
-        } catch (NumberFormatException | IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Invalid post ID: " + id);
-        }
-        
-        // Find poster username and ID
-        Element posterElement = element.getElementsByTag("dt").first();
-        // Get poster username
-        poster = posterElement.text();
-        // Check if posted by guest
-        if (posterElement.getElementsByAttribute("href").isEmpty()) {
-            posterId = User.GUEST_ID;
-        } else {
-            // Get URL to poster's profile
-            String posterUrl = posterElement.getElementsByAttribute("href").
-                                             first().attributes().get("href");
-            // Get poster ID from profile URL
-            // (this will fail if id isn't the last parameter in the URL)
+            // Find post ID
+            String id = element.id();
             try {
-                final String DELIMITER = "id=";
-                posterId = Integer.parseInt(posterUrl.substring(posterUrl.
-                           lastIndexOf(DELIMITER) + DELIMITER.length()));
+                // Skip first character 'p' and use the rest of the string as ID
+                this.id = Integer.parseInt(id.substring(1));
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Could not find poster ID" +
-                                                   "for post #" + this.id);
+                throw new IllegalArgumentException("Invalid post ID: " + id);
             }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Couldn't find post ID.");
         }
         
+        try {
+            // Find poster username and ID
+            Element posterElement = element.getElementsByTag("dt").first();
+            // Get poster username
+            poster = posterElement.text();
+            // Check if posted by guest
+            if (posterElement.getElementsByAttribute("href").isEmpty()) {
+                posterId = User.GUEST_ID;
+            } else {
+                // Get URL to poster's profile
+                String posterUrl = posterElement.getElementsByAttribute("href").
+                        first().attributes().get("href");
+                // Get poster ID from profile URL
+                // (this will fail if id isn't the last parameter in the URL)
+                try {
+                    final String DELIMITER = "id=";
+                    posterId = Integer.parseInt(posterUrl.substring(posterUrl.
+                               lastIndexOf(DELIMITER) + DELIMITER.length()));
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    throw new IllegalArgumentException("Couldn't find poster " +
+                                                       "ID of post " + this.id);
+                }
+            }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Couldn't find poster " +
+                                               "of post " + this.id);
+        }
+        
+        try {
         // Find message text
         // TODO get BBCode, not just plaintext
         message = element.getElementsByClass("postmsg").first().text();
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Couldn't find message body " +
+                                               "of post " + this.id);
+        }
         
         // TODO check if smilies need to be displayed
         hideSmilies = true;
