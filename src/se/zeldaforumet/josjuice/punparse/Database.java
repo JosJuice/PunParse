@@ -14,12 +14,13 @@ import java.sql.Types;
  */
 public class Database implements AutoCloseable {
     
-    private Connection connection;
-    
-    private PreparedStatement insertPost;
+    private final Connection connection;
+    private final PreparedStatement insertPost;
     
     /**
-     * Sets up a connection to a database.
+     * Sets up a a database. First, a connection will be established.
+     * Then, necessary tables will be created if they don't exist.
+     * The prepared statements will also be created.
      * @param url the URL used to access the database, for instance
      * <code>mysql://localhost/?user=username&password=password</code>
      * (do not include a preceding <code>jdbc:</code>)
@@ -30,7 +31,11 @@ public class Database implements AutoCloseable {
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
         createTables();
-        prepareStatements();
+        
+        insertPost = connection.prepareStatement("INSERT IGNORE INTO posts " +
+                "(id, poster, poster_id, message, hide_smilies, " +
+                "posted, edited, edited_by, topic_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     @Override public void close() throws SQLException {
@@ -60,19 +65,8 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Prepares the prepared statements.
-     * @throws SQLException if something goes wrong on the SQL side
-     */
-    private void prepareStatements() throws SQLException {
-        insertPost = connection.prepareStatement("INSERT IGNORE INTO posts " +
-                "(id, poster, poster_id, message, hide_smilies, " +
-                "posted, edited, edited_by, topic_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
-    }
-    
-    /**
-     * Inserts a post into the database.
-     * If the post already exists in the database, nothing happens.
+     * Inserts a post into the database. If a post with the same ID already
+     * exists in the database, nothing happens.
      * @param post the post to insert
      * @throws SQLException if something goes wrong on the SQL side
      */
