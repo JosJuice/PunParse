@@ -3,6 +3,6 @@ package se.zeldaforumet.josjuice.punparse.data;
 /**
  * @author JosJuice
  */
-public class Category {
+public final class Category {
 
 }

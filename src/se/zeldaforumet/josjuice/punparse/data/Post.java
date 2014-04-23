@@ -5,23 +5,23 @@ import org.jsoup.nodes.Element;
 /**
  * @author JosJuice
  */
-public class Post {
+public final class Post {
     
     public static final int UNKNOWN_TOPIC_ID = 0;
     public static final int UNKNOWN_DATE = 0;
     
-    private boolean isEdited;
+    private final boolean isEdited;
     
     // All of the following variables correspond to database columns.
-    private int id;
-    private String poster;
-    private int posterId;
-    private String message;
-    private boolean hideSmilies;
-    private int posted;
-    private int edited;
-    private String editedBy;
-    private int topicId;
+    private final int id;
+    private final String poster;
+    private final int posterId;
+    private final String message;
+    private final boolean hideSmilies;
+    private final int posted;
+    private final int edited;
+    private final String editedBy;
+    private final int topicId;
     
     /**
      * Constructs a <code>Post</code>.
