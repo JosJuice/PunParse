@@ -40,6 +40,7 @@ public class Database implements AutoCloseable {
     
     @Override public void close() throws SQLException {
         connection.close();
+        insertPost.close();
     }
     
     /**
