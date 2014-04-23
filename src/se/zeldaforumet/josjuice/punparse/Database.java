@@ -48,21 +48,22 @@ public class Database implements AutoCloseable {
      * @throws SQLException if something goes wrong on the SQL side
      */
     private void createTables() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
-                "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
-                "poster VARCHAR(200) NOT NULL DEFAULT ''," +
-                "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
-                "poster_ip VARCHAR(15)," +
-                "poster_email VARCHAR(50)," +
-                "message TEXT," +
-                "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
-                "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
-                "edited INT(10) UNSIGNED," +
-                "edited_by VARCHAR(200)," +
-                "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
-                "PRIMARY KEY (id)" +
-                ") ENGINE=MyISAM;");
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
+                    "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
+                    "poster VARCHAR(200) NOT NULL DEFAULT ''," +
+                    "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
+                    "poster_ip VARCHAR(15)," +
+                    "poster_email VARCHAR(50)," +
+                    "message TEXT," +
+                    "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
+                    "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                    "edited INT(10) UNSIGNED," +
+                    "edited_by VARCHAR(200)," +
+                    "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                    "PRIMARY KEY (id)" +
+                    ") ENGINE=MyISAM;");
+        }
     }
     
     /**
