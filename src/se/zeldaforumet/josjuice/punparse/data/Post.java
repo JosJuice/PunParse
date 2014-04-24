@@ -34,12 +34,12 @@ public final class Post {
     public Post(Element element, int topicId) throws IllegalArgumentException {
         try {
             // Find post ID
-            String id = element.id();
+            String idText = element.id();
             try {
                 // Skip first character 'p' and use the rest of the string as ID
-                this.id = Integer.parseInt(id.substring(1));
+                id = Integer.parseInt(idText.substring(1));
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Invalid post ID: " + id);
+                throw new IllegalArgumentException("Invalid post ID: "+ idText);
             }
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't find post ID.");
