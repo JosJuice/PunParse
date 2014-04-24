@@ -73,7 +73,7 @@ public class PunParse {
     
     /**
      * Parses a PunBB HTML document. The data will be placed in a database.
-     * If an individual piece of data (for instance, a post) cannot be parsed,
+     * If parsing an individual piece of data (for instance, a post) fails,
      * it will be skipped and the returned error count will be increased by one.
      * @param document HTML document to parse
      * @param database database to place data into
@@ -86,22 +86,7 @@ public class PunParse {
             switch (element.id()) {
                 case "punviewpoll":
                 case "punviewtopic":
-                    Elements postElements =
-                            element.getElementsByClass("blockpost");
-                    for (Element postElement : postElements) {
-                        try {
-                            Post post = new Post(postElement,
-                                                 Post.UNKNOWN_TOPIC_ID);
-                            database.insert(post);
-                        } catch (IllegalArgumentException e) {
-                            errors++;
-                            System.err.println("Error in input data: " +
-                                               e.getLocalizedMessage());
-                        } catch (SQLException e) {
-                            System.err.println("SQL error: " +
-                                               e.getLocalizedMessage());
-                        }
-                    }
+                    errors += parseViewtopic(element, database);
                     break;
                 case "punprofile":
                     // TODO
@@ -112,6 +97,32 @@ public class PunParse {
                 case "punindex":
                     // TODO
                     break;
+            }
+        }
+        return errors;
+    }
+    
+    /**
+     * Parses a #punviewtopic element. The data will be placed in a database.
+     * If parsing an individual piece of data (for instance, a post) fails,
+     * it will be skipped and the returned error count will be increased by one.
+     * @param element #punviewtopic element
+     * @param database database to place data into
+     * @return number of errors encountered
+     */
+    public static int parseViewtopic(Element element, Database database) {
+        int errors = 0;
+        Elements postElements = element.getElementsByClass("blockpost");
+        for (Element postElement : postElements) {
+            try {
+                Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
+                database.insert(post);
+            } catch (IllegalArgumentException e) {
+                errors++;
+                System.err.println("Error in input data: " +
+                                   e.getLocalizedMessage());
+            } catch (SQLException e) {
+                System.err.println("SQL error: " + e.getLocalizedMessage());
             }
         }
         return errors;
