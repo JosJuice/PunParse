@@ -72,7 +72,7 @@ public class PunParse {
     }
     
     /**
-     * Parses an HTML document. The data will be placed in a database.
+     * Parses a PunBB HTML document. The data will be placed in a database.
      * If an individual piece of data (for instance, a post) cannot be parsed,
      * it will be skipped and the returned error count will be increased by one.
      * @param document HTML document to parse
@@ -81,28 +81,38 @@ public class PunParse {
      */
     public static int parseDocument(Document document, Database database) {
         int errors = 0;
-        if (document.getElementById("punviewtopic") != null ||
-                document.getElementById("punviewpoll") != null) {
-            Elements postElements = document.getElementsByClass("blockpost");
-            for (Element postElement : postElements) {
-                try {
-                    Post post = new Post(postElement, Post.UNKNOWN_TOPIC_ID);
-                    database.insert(post);
-                } catch (IllegalArgumentException e) {
-                    errors++;
-                    System.err.println("Error in input data: " +
-                                       e.getLocalizedMessage());
-                } catch (SQLException e) {
-                    System.err.println("SQL error: " + e.getLocalizedMessage());
-                }
+        // There should only be one .pun element, but handling more doesn't hurt
+        for (Element element : document.getElementsByClass("pun")) {
+            switch (element.id()) {
+                case "punviewpoll":
+                case "punviewtopic":
+                    Elements postElements =
+                            element.getElementsByClass("blockpost");
+                    for (Element postElement : postElements) {
+                        try {
+                            Post post = new Post(postElement,
+                                                 Post.UNKNOWN_TOPIC_ID);
+                            database.insert(post);
+                        } catch (IllegalArgumentException e) {
+                            errors++;
+                            System.err.println("Error in input data: " +
+                                               e.getLocalizedMessage());
+                        } catch (SQLException e) {
+                            System.err.println("SQL error: " +
+                                               e.getLocalizedMessage());
+                        }
+                    }
+                    break;
+                case "punprofile":
+                    // TODO
+                    break;
+                case "punviewforum":
+                    // TODO
+                    break;
+                case "punindex":
+                    // TODO
+                    break;
             }
-            // TODO
-        } else if (document.getElementById("punprofile") != null) {
-            // TODO
-        } else if (document.getElementById("punviewforum") != null) {
-            // TODO
-        } else if (document.getElementById("punindex") != null) {
-            // TODO
         }
         return errors;
     }
