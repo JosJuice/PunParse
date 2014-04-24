@@ -53,8 +53,6 @@ public class Database implements AutoCloseable {
                     "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
                     "poster VARCHAR(200) NOT NULL DEFAULT ''," +
                     "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
-                    "poster_ip VARCHAR(15)," +
-                    "poster_email VARCHAR(50)," +
                     "message TEXT," +
                     "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
                     "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
