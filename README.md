@@ -5,9 +5,9 @@ somewhat resembles a PunBB 1.2 database. Under development.
 
 Requirements
 ------------
-You need Java 7 or newer to run PunParse. To do anything useful, you
-also need to have an SQL server. I have only tested using MySQL, but
-other servers should work with very minor modifications to the program.
+You need Java 7 or newer to run PunParse. To do anything useful,
+you also need an SQL database. Currently, only MySQL is supported.
+Support for PostgreSQL and SQLite might be added in the future.
 
 Arguments
 ---------
