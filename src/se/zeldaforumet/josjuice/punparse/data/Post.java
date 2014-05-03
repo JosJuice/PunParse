@@ -18,8 +18,8 @@ public final class Post {
     private final int posterId;
     private final String message;
     private final boolean hideSmilies;
-    private final int posted;
-    private final int edited;
+    private final long posted;
+    private final long edited;
     private final String editedBy;
     private final int topicId;
     
@@ -144,14 +144,14 @@ public final class Post {
     /**
      * @return Date posted (Unix timestamp)
      */
-    public int getPosted() {
+    public long getPosted() {
         return posted;
     }
     
     /**
      * @return Date last edited (Unix timestamp), or UNKNOWN_DATE if unedited
      */
-    public int getEdited() {
+    public long getEdited() {
         return edited;
     }
     

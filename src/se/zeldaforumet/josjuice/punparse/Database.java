@@ -76,9 +76,9 @@ public class Database implements AutoCloseable {
         insertPost.setInt(3, post.getPosterId());
         insertPost.setString(4, post.getMessage());
         insertPost.setBoolean(5, post.getHideSmilies());
-        insertPost.setInt(6, post.getPosted());
+        insertPost.setLong(6, post.getPosted());
         if (post.isEdited()) {
-            insertPost.setInt(7, post.getEdited());
+            insertPost.setLong(7, post.getEdited());
             insertPost.setString(8, post.getEditedBy());
         } else {
             insertPost.setNull(7, Types.INTEGER);
