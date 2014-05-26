@@ -148,7 +148,7 @@ public final class Post {
     }
     
     /**
-     * @return Date last edited (Unix timestamp), or UNKNOWN_DATE if unedited
+     * @return Date last edited (Unix timestamp), or 0 if unedited
      */
     public long getEdited() {
         return edited;
