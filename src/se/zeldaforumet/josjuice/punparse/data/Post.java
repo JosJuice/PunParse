@@ -8,7 +8,6 @@ import org.jsoup.nodes.Element;
 public final class Post {
     
     public static final int UNKNOWN_TOPIC_ID = 0;
-    public static final int UNKNOWN_DATE = 0;
     
     private final boolean isEdited;
     
@@ -86,11 +85,11 @@ public final class Post {
         hideSmilies = true;
         
         // TODO find date posted
-        posted = UNKNOWN_DATE;
+        posted = id;
         
         // TODO find out if edited
         isEdited = false;
-        edited = UNKNOWN_DATE;
+        edited = 0;
         editedBy = null;
         
         // Find topic ID (well, there's not much finding going on, really :))
@@ -98,8 +97,8 @@ public final class Post {
     }
     
     /**
-     * @return true if the post has been edited. (It is possible to edit a post
-     * without marking it as edited if the silent edit feature is used.)
+     * @return true if the post is marked as edited. (It is possible to edit a
+     * post without marking it as edited if the silent edit feature is used.)
      */
     public boolean isEdited() {
         return isEdited;
