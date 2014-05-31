@@ -1,6 +1,7 @@
 package se.zeldaforumet.josjuice.punparse;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * @author JosJuice
@@ -50,12 +51,12 @@ public final class Post {
             // Get poster username
             poster = posterElement.text();
             // Check if posted by guest
-            if (posterElement.getElementsByAttribute("href").isEmpty()) {
+            Elements posterLinks = posterElement.getElementsByAttribute("href");
+            if (posterLinks.isEmpty()) {
                 posterId = User.GUEST_ID;
             } else {
                 // Get URL to poster's profile
-                String posterUrl = posterElement.getElementsByAttribute("href").
-                        first().attributes().get("href");
+                String posterUrl = posterLinks.first().attributes().get("href");
                 // Get poster ID from profile URL
                 // (this will fail if id isn't the last parameter in the URL)
                 try {
@@ -155,7 +156,7 @@ public final class Post {
     }
     
     /**
-     * @return Username of last user that edited the post, or null if unedited
+     * @return Username of user that last edited the post, or null if unedited
      */
     public String getEditedBy() {
         return editedBy;
