@@ -1,7 +1,5 @@
 package se.zeldaforumet.josjuice.punparse;
 
-import se.zeldaforumet.josjuice.punparse.data.*;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -12,6 +10,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /**
+ * Parses data from PunBB HTML output to an SQL database.
  * @author JosJuice
  */
 public class PunParse {

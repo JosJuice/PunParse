@@ -1,4 +1,4 @@
-package se.zeldaforumet.josjuice.punparse.data;
+package se.zeldaforumet.josjuice.punparse;
 
 /**
  * @author JosJuice

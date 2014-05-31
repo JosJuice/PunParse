@@ -1,6 +1,5 @@
 package se.zeldaforumet.josjuice.punparse;
 
-import se.zeldaforumet.josjuice.punparse.data.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
