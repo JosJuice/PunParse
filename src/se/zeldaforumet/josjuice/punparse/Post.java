@@ -58,12 +58,10 @@ public final class Post {
                 // Get URL to poster's profile
                 String posterUrl = posterLinks.first().attributes().get("href");
                 // Get poster ID from profile URL
-                // (this will fail if id isn't the last parameter in the URL)
                 try {
-                    final String DELIMITER = "id=";
-                    posterId = Integer.parseInt(posterUrl.substring(posterUrl.
-                               lastIndexOf(DELIMITER) + DELIMITER.length()));
-                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                    posterId = Integer.parseInt(
+                            Parser.getUrlQueryValue(posterUrl, "id"));
+                } catch (NumberFormatException | NullPointerException e) {
                     throw new IllegalArgumentException("Couldn't find poster " +
                                                        "ID of post " + this.id);
                 }
