@@ -23,23 +23,20 @@ public class Database implements AutoCloseable {
      * Sets up a a database. First, a connection will be established.
      * Then, tables will be created and prepared statements will be initialized.
      * @param url the URL used to access the database, for instance
-     * <code>mysql://localhost/?user=username&password=password</code> or
-     * <code>postgresql://localhost/?user=username&password=password</code> or
-     * <code>sqlite:database.db</code>
-     * (do not include a preceding <code>jdbc:</code>)
-     * @param database the name of the database
+     * mysql://localhost/database?user=username&password=password or
+     * postgresql://localhost/database?user=username&password=password or
+     * sqlite:database.db
+     * (do not include a preceding jdbc:)
      * @param prefix a short string to prefix table names with (can be null)
      * @throws SQLException if something goes wrong on the SQL side
      */
-    public Database(String url, String database, String tablePrefix)
-            throws SQLException {
+    public Database(String url, String tablePrefix) throws SQLException {
         if (tablePrefix == null) {
             prefix = "";
         } else {
             prefix = tablePrefix;
         }
         connection = DriverManager.getConnection("jdbc:" + url);
-        connection.setCatalog(database);
         type = Type.MYSQL;          // TODO detect database type
         createTables();
         
