@@ -15,6 +15,7 @@ public class Database implements AutoCloseable {
     
     private final Connection connection;
     private final PreparedStatement insertPost;
+    private final String prefix;
     
     /**
      * Sets up a a database. First, a connection will be established.
@@ -24,22 +25,24 @@ public class Database implements AutoCloseable {
      * <code>mysql://localhost/?user=username&password=password</code>
      * (do not include a preceding <code>jdbc:</code>)
      * @param database the name of the database
+     * @param prefix a short string to prefix table names with (can be null)
      * @throws SQLException if something goes wrong on the SQL side
      */
-    public Database(String url, String database) throws SQLException {
+    public Database(String url, String database, String tablePrefix)
+            throws SQLException {
+        if (tablePrefix == null) {
+            prefix = "";
+        } else {
+            prefix = tablePrefix;
+        }
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
         createTables();
         
-        insertPost = connection.prepareStatement("INSERT IGNORE INTO posts " +
-                "(id, poster, poster_id, message, hide_smilies, " +
-                "posted, edited, edited_by, topic_id) " +
+        insertPost = connection.prepareStatement("INSERT IGNORE INTO " +
+                prefix + "posts (id, poster, poster_id, message, " +
+                "hide_smilies, posted, edited, edited_by, topic_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
-    }
-    
-    @Override public void close() throws SQLException {
-        connection.close();
-        insertPost.close();
     }
     
     /**
@@ -48,19 +51,25 @@ public class Database implements AutoCloseable {
      */
     private void createTables() throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS posts (" +
-                    "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
-                    "poster VARCHAR(200) NOT NULL DEFAULT ''," +
-                    "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
-                    "message TEXT," +
-                    "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
-                    "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
-                    "edited INT(10) UNSIGNED," +
-                    "edited_by VARCHAR(200)," +
-                    "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
-                    "PRIMARY KEY (id)" +
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "posts (" +
+                        "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
+                        "poster VARCHAR(200) NOT NULL DEFAULT ''," +
+                        "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
+                        "message TEXT," +
+                        "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
+                        "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                        "edited INT(10) UNSIGNED," +
+                        "edited_by VARCHAR(200)," +
+                        "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                        "PRIMARY KEY (id)" +
                     ") ENGINE=MyISAM;");
         }
+    }
+    
+    @Override public void close() throws SQLException {
+        connection.close();
+        insertPost.close();
     }
     
     /**
