@@ -14,15 +14,18 @@ import java.sql.Types;
 public class Database implements AutoCloseable {
     
     private final Connection connection;
-    private final PreparedStatement insertPost;
+    private final Type type;
     private final String prefix;
+    
+    private final PreparedStatement insertPost;
     
     /**
      * Sets up a a database. First, a connection will be established.
-     * Then, necessary tables will be created if they don't exist.
-     * The prepared statements will also be created.
+     * Then, tables will be created and prepared statements will be initialized.
      * @param url the URL used to access the database, for instance
-     * <code>mysql://localhost/?user=username&password=password</code>
+     * <code>mysql://localhost/?user=username&password=password</code> or
+     * <code>postgresql://localhost/?user=username&password=password</code> or
+     * <code>sqlite:database.db</code>
      * (do not include a preceding <code>jdbc:</code>)
      * @param database the name of the database
      * @param prefix a short string to prefix table names with (can be null)
@@ -37,33 +40,34 @@ public class Database implements AutoCloseable {
         }
         connection = DriverManager.getConnection("jdbc:" + url);
         connection.setCatalog(database);
+        type = Type.MYSQL;          // TODO detect database type
         createTables();
         
-        insertPost = connection.prepareStatement("INSERT IGNORE INTO " +
-                prefix + "posts (id, poster, poster_id, message, " +
+        insertPost = connection.prepareStatement("INSERT " + type.ignoreInsert +
+                "INTO " + prefix + "posts (id, poster, poster_id, message, " +
                 "hide_smilies, posted, edited, edited_by, topic_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     /**
-     * Creates all necessary tables. If they already exist, nothing happens.
+     * Creates all necessary tables.
      * @throws SQLException if something goes wrong on the SQL side
      */
     private void createTables() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "posts (" +
-                        "id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT," +
+                        "id " + type.primaryKey + "," +
                         "poster VARCHAR(200) NOT NULL DEFAULT ''," +
-                        "poster_id INT(10) UNSIGNED NOT NULL DEFAULT 1," +
+                        "poster_id " + type.integer + " NOT NULL DEFAULT 1," +
                         "message TEXT," +
-                        "hide_smilies TINYINT(1) NOT NULL DEFAULT 0," +
-                        "posted INT(10) UNSIGNED NOT NULL DEFAULT 0," +
-                        "edited INT(10) UNSIGNED," +
+                        "hide_smilies " + type.bool + " NOT NULL DEFAULT 0," +
+                        "posted " + type.integer + " NOT NULL DEFAULT 0," +
+                        "edited " + type.integer + "," +
                         "edited_by VARCHAR(200)," +
-                        "topic_id INT(10) UNSIGNED NOT NULL DEFAULT 0," +
+                        "topic_id " + type.integer + " NOT NULL DEFAULT 0," +
                         "PRIMARY KEY (id)" +
-                    ") ENGINE=MyISAM;");
+                    ")" + type.engine + ";");
         }
     }
     
@@ -73,8 +77,7 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Inserts a post into the database. If a post with the same ID already
-     * exists in the database, nothing happens.
+     * Inserts a post into the database.
      * @param post the post to insert
      * @throws SQLException if something goes wrong on the SQL side
      */
@@ -94,6 +97,31 @@ public class Database implements AutoCloseable {
         }
         insertPost.setInt(9, post.getTopicId());
         insertPost.executeUpdate();
+    }
+    
+    private enum Type {
+        MYSQL("INT(10) UNSIGNED", "TINYINT(1)",
+              "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT",
+              " ENGINE=MyISAM", "IGNORE "),
+        POSTGRESQL("INT", "SMALLINT", "SERIAL",
+                   "", ""),   // TODO ignore existing rows
+        SQLITE("INTEGER", "INTEGER", "INTEGER NOT NULL",
+               "", "ON CONFLICT IGNORE ");
+        
+        public final String integer;
+        public final String bool;
+        public final String primaryKey;
+        public final String engine;
+        public final String ignoreInsert;
+        
+        private Type(String integer, String bool, String primaryKey,
+                     String engine, String ignoreInsert) {
+            this.integer = integer;
+            this.bool = bool;
+            this.primaryKey = primaryKey;
+            this.engine = engine;
+            this.ignoreInsert = ignoreInsert;
+        }
     }
     
 }
