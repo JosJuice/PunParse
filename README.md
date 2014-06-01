@@ -18,10 +18,10 @@ Arguments
 ---------
 PunParse requires three command line arguments, in this order:
 * The folder containing HTML to parse. Irrelevant files are ignored.
-* The database URL to write to. A URL might look like
-  <pre>mysql://localhost/?user=username&password=password</pre> or
-  <pre>postgresql://localhost/?user=username&password=password</pre> or
-  <pre>sqlite:database.db</pre>
+* The database URL to write to. A URL might look like one of the following:
+  * `mysql://localhost/?user=username&password=password`
+  * `postgresql://localhost/?user=username&password=password`
+  * `sqlite:database.db`
 * The name of the database to write to. The database should be empty
   unless you are trying to append data to an existing PunBB database.
   Existing records will not be modified.
