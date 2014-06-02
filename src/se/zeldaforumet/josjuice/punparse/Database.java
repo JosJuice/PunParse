@@ -46,28 +46,6 @@ public class Database implements AutoCloseable {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
-    /**
-     * Creates all necessary tables.
-     * @throws SQLException if something goes wrong on the SQL side
-     */
-    private void createTables() throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS " + prefix + "posts (" +
-                        "id " + type.primaryKey + "," +
-                        "poster VARCHAR(200) NOT NULL DEFAULT ''," +
-                        "poster_id " + type.integer + " NOT NULL DEFAULT 1," +
-                        "message TEXT," +
-                        "hide_smilies " + type.bool + " NOT NULL DEFAULT 0," +
-                        "posted " + type.integer + " NOT NULL DEFAULT 0," +
-                        "edited " + type.integer + "," +
-                        "edited_by VARCHAR(200)," +
-                        "topic_id " + type.integer + " NOT NULL DEFAULT 0," +
-                        "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
-        }
-    }
-    
     @Override public void close() throws SQLException {
         connection.close();
         insertPost.close();
@@ -96,25 +74,210 @@ public class Database implements AutoCloseable {
         insertPost.executeUpdate();
     }
     
+    /**
+     * Creates all necessary tables.
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    private void createTables() throws SQLException {
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "bans (" +
+                    "id " + type.primaryKey + ", " +
+                    "username VARCHAR(200), " +
+                    "ip VARCHAR(255), " +
+                    "email VARCHAR(50), " +
+                    "message VARCHAR(255), " +
+                    "expire " + type.integer + ", " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "categories (" +
+                    "id " + type.primaryKey + ", " +
+                    "cat_name VARCHAR(80) NOT NULL DEFAULT 'New Category', " +
+                    "disp_position " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "censoring (" +
+                    "id " + type.primaryKey + ", " +
+                    "search_for VARCHAR(60) NOT NULL DEFAULT '', " +
+                    "replace_with VARCHAR(60) NOT NULL DEFAULT '', " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "config (" +
+                    "conf_name VARCHAR(255) NOT NULL DEFAULT '', " +
+                    "conf_value TEXT, " +
+                    "PRIMARY KEY (conf_name)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "forum_perms (" +
+                    "group_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "forum_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "read_forum " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "read_replies " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "post_topics " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "PRIMARY KEY (group_id, forum_id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "forums (" +
+                    "id " + type.primaryKey + ", " +
+                    "forum_name VARCHAR(80) NOT NULL DEFAULT 'New forum', " +
+                    "forum_desc TEXT, " +
+                    "redirect_url VARCHAR(100), " +
+                    "moderators TEXT, " +
+                    "num_topics " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "num_posts " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "last_post " + type.integer + ", " +
+                    "last_post_id " + type.integer + ", " +
+                    "last_poster VARCHAR(200), " +
+                    "sort_by " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "disp_position " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "cat_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "groups (" +
+                    "g_id " + type.primaryKey + ", " +
+                    "g_title VARCHAR(50) NOT NULL DEFAULT '', " +
+                    "g_user_title VARCHAR(50), " +
+                    "g_read_board " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_post_replies " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_post_topics " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_post_polls " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_edit_posts " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_delete_posts " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_delete_topics " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_set_title " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_search " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_search_users " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "g_edit_subjects_interval " + type.smallInt + " NOT NULL DEFAULT 300, " +
+                    "g_post_flood " + type.smallInt + " NOT NULL DEFAULT 30, " +
+                    "g_search_flood " + type.smallInt + " NOT NULL DEFAULT 30, " +
+                    "PRIMARY KEY (g_id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "posts (" +
+                    "id " + type.primaryKey + ", " +
+                    "poster VARCHAR(200) NOT NULL DEFAULT '', " +
+                    "poster_id " + type.integer + " NOT NULL DEFAULT 1, " +
+                    "poster_ip VARCHAR(15), " +
+                    "poster_email VARCHAR(50), " +
+                    "message TEXT, " +
+                    "hide_smilies " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "posted " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "edited " + type.integer + ", " +
+                    "edited_by VARCHAR(200), " +
+                    "topic_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "ranks (" +
+                    "id " + type.primaryKey + ", " +
+                    "rank VARCHAR(50) NOT NULL DEFAULT '', " +
+                    "min_posts " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "topics (" +
+                    "id " + type.primaryKey + ", " +
+                    "poster VARCHAR(200) NOT NULL DEFAULT '', " +
+                    "subject VARCHAR(255) NOT NULL DEFAULT '', " +
+                    "posted " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "last_post " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "last_post_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "last_poster VARCHAR(200), " +
+                    "num_views " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "num_replies " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "closed " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "sticky " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "moved_to " + type.integer + ", " +
+                    "forum_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "users (" +
+                    "id " + type.primaryKey + ", " +
+                    "group_id " + type.integer + " NOT NULL DEFAULT 4, " +
+                    "username VARCHAR(200) NOT NULL DEFAULT '', " +
+                    "password VARCHAR(40) NOT NULL DEFAULT '', " +
+                    "email VARCHAR(50) NOT NULL DEFAULT '', " +
+                    "title VARCHAR(50), " +
+                    "realname VARCHAR(40), " +
+                    "url VARCHAR(100), " +
+                    "jabber VARCHAR(75), " +
+                    "icq VARCHAR(12), " +
+                    "msn VARCHAR(50), " +
+                    "aim VARCHAR(30), " +
+                    "yahoo VARCHAR(30), " +
+                    "location VARCHAR(30), " +
+                    "use_avatar " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "signature TEXT, " +
+                    "disp_topics " + type.tinyInt + ", " +
+                    "disp_posts " + type.tinyInt + ", " +
+                    "email_setting " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "save_pass " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "notify_with_post " + type.bool + " NOT NULL DEFAULT 0, " +
+                    "show_smilies " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "show_img " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "show_img_sig " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "show_avatars " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "show_sig " + type.bool + " NOT NULL DEFAULT 1, " +
+                    "timezone " + type.real + " NOT NULL DEFAULT 0, " +
+                    "language VARCHAR(25) NOT NULL DEFAULT 'English', " +
+                    "style VARCHAR(25) NOT NULL DEFAULT 'Oxygen', " +
+                    "num_posts " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "last_post " + type.integer + ", " +
+                    "registered " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "registration_ip VARCHAR(15) NOT NULL DEFAULT '0.0.0.0', " +
+                    "last_visit " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "admin_note VARCHAR(30), " +
+                    "activate_string VARCHAR(50), " +
+                    "activate_key VARCHAR(8), " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.engine + ";");
+        }
+    }
+    
     private enum Type {
-        MYSQL("INT(10) UNSIGNED", "TINYINT(1)",
+        MYSQL("INT(10) UNSIGNED", "MEDIUMINT(8) UNSIGNED", "SMALLINT(6)",
+              "TINYINT(3) UNSIGNED", "TINYINT(1)", "FLOAT",
               "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT",
               " ENGINE=MyISAM", "IGNORE "),
-        POSTGRESQL("INT", "SMALLINT", "SERIAL",
-                   "", ""),   // TODO ignore existing rows
-        SQLITE("INTEGER", "INTEGER", "INTEGER NOT NULL",
-               "", "ON CONFLICT IGNORE ");
+        POSTGRESQL("INT", "INT", "SMALLINT", "SMALLINT", "SMALLINT", "SERIAL",
+                   "REAL", "", ""),   // TODO ignore existing rows
+        SQLITE("INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "FLOAT",
+               "INTEGER NOT NULL", "", "ON CONFLICT IGNORE ");
         
         public final String integer;
+        public final String mediumInt;
+        public final String smallInt;
+        public final String tinyInt;
         public final String bool;
+        public final String real;
         public final String primaryKey;
         public final String engine;
         public final String ignoreInsert;
         
-        private Type(String integer, String bool, String primaryKey,
-                     String engine, String ignoreInsert) {
+        private Type(String integer, String mediumInt, String smallInt,
+                     String tinyInt, String bool, String real,
+                     String primaryKey, String engine, String ignoreInsert) {
             this.integer = integer;
+            this.mediumInt = mediumInt;
+            this.smallInt = smallInt;
+            this.tinyInt = tinyInt;
             this.bool = bool;
+            this.real = real;
             this.primaryKey = primaryKey;
             this.engine = engine;
             this.ignoreInsert = ignoreInsert;
