@@ -243,7 +243,6 @@ public class Database implements AutoCloseable {
                     ");");
                     break;
                 case SQLITE:
-                default:
                     statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "search_words (" +
                     "id INTEGER NOT NULL, " +
@@ -252,6 +251,9 @@ public class Database implements AutoCloseable {
                     "UNIQUE (word)" +
                     ");");
                     break;
+                default:
+                    throw new SQLException("Found unsupported database type " +
+                                           "when creating search_words");
             }
             
             statement.executeUpdate(
