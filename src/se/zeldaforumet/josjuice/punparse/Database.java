@@ -254,10 +254,14 @@ public class Database implements AutoCloseable {
               "TINYINT(3) UNSIGNED", "TINYINT(1)", "FLOAT",
               "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT",
               " ENGINE=MyISAM", "IGNORE "),
-        POSTGRESQL("INT", "INT", "SMALLINT", "SMALLINT", "SMALLINT", "SERIAL",
-                   "REAL", "", ""),   // TODO ignore existing rows
-        SQLITE("INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "FLOAT",
-               "INTEGER NOT NULL", "", "ON CONFLICT IGNORE ");
+        POSTGRESQL("INT", "INT", "SMALLINT",
+                   "SMALLINT", "SMALLINT", "REAL",
+                   "SERIAL",
+                   "", ""),   // TODO ignore existing records
+        SQLITE("INTEGER", "INTEGER", "INTEGER",
+               "INTEGER", "INTEGER", "FLOAT",
+               "INTEGER NOT NULL",
+               "", "ON CONFLICT IGNORE ");
         
         public final String integer;
         public final String mediumInt;
