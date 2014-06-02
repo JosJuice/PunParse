@@ -89,7 +89,7 @@ public class Database implements AutoCloseable {
                     "message VARCHAR(255), " +
                     "expire " + type.integer + ", " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "categories (" +
@@ -97,7 +97,7 @@ public class Database implements AutoCloseable {
                     "cat_name VARCHAR(80) NOT NULL DEFAULT 'New Category', " +
                     "disp_position " + type.integer + " NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "censoring (" +
@@ -105,14 +105,14 @@ public class Database implements AutoCloseable {
                     "search_for VARCHAR(60) NOT NULL DEFAULT '', " +
                     "replace_with VARCHAR(60) NOT NULL DEFAULT '', " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "config (" +
                     "conf_name VARCHAR(255) NOT NULL DEFAULT '', " +
                     "conf_value TEXT, " +
                     "PRIMARY KEY (conf_name)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "forum_perms (" +
@@ -122,7 +122,7 @@ public class Database implements AutoCloseable {
                     "read_replies " + type.bool + " NOT NULL DEFAULT 1, " +
                     "post_topics " + type.bool + " NOT NULL DEFAULT 1, " +
                     "PRIMARY KEY (group_id, forum_id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "forums (" +
@@ -140,7 +140,7 @@ public class Database implements AutoCloseable {
                     "disp_position " + type.integer + " NOT NULL DEFAULT 0, " +
                     "cat_id " + type.integer + " NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "groups (" +
@@ -161,7 +161,15 @@ public class Database implements AutoCloseable {
                     "g_post_flood " + type.smallInt + " NOT NULL DEFAULT 30, " +
                     "g_search_flood " + type.smallInt + " NOT NULL DEFAULT 30, " +
                     "PRIMARY KEY (g_id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "online (" +
+                    "user_id " + type.integer + " NOT NULL DEFAULT 1, " +
+                    "ident VARCHAR(200) NOT NULL DEFAULT '', " +
+                    "logged " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "idle " + type.bool + " NOT NULL DEFAULT 0" +
+                    ")" + type.memory + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "posts (" +
@@ -177,7 +185,7 @@ public class Database implements AutoCloseable {
                     "edited_by VARCHAR(200), " +
                     "topic_id " + type.integer + " NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "ranks (" +
@@ -185,7 +193,73 @@ public class Database implements AutoCloseable {
                     "rank VARCHAR(50) NOT NULL DEFAULT '', " +
                     "min_posts " + type.mediumInt + " NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "reports (" +
+                    "id " + type.primaryKey + ", " +
+                    "post_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "topic_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "forum_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "reported_by " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "created " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "message TEXT, " +
+                    "zapped " + type.integer + ", " +
+                    "zapped_by " + type.integer + ", " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.myIASM + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "search_cache (" +
+                    "id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "ident VARCHAR(200) NOT NULL DEFAULT '', " +
+                    "search_data TEXT, " +
+                    "PRIMARY KEY (id)" +
+                    ")" + type.myIASM + ";");
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "search_matches (" +
+                    "post_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "word_id " + type.mediumInt + " NOT NULL DEFAULT 0, " +
+                    "subject_match " + type.bool + " NOT NULL DEFAULT 0" +
+                    ")" + type.myIASM + ";");
+            
+            switch (type) {
+                case MYSQL:
+                    statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "search_words (" +
+                    "id MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT, " +
+                    "word VARCHAR(20) BINARY NOT NULL DEFAULT '', " +
+                    "PRIMARY KEY (word), " +
+                    "KEY " + prefix + "search_words_id_idx (id)" +
+                    ") ENGINE=MyISAM;");
+                    break;
+                case POSTGRESQL:
+                    statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "search_words (" +
+                    "id SERIAL, " +
+                    "word VARCHAR(20) NOT NULL DEFAULT '', " +
+                    "PRIMARY KEY (word)" +
+                    ");");
+                    break;
+                case SQLITE:
+                default:
+                    statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "search_words (" +
+                    "id INTEGER NOT NULL, " +
+                    "word VARCHAR(20) NOT NULL DEFAULT '', " +
+                    "PRIMARY KEY (id), " +
+                    "UNIQUE (word)" +
+                    ");");
+                    break;
+            }
+            
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + prefix + "subscriptions (" +
+                    "user_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "topic_id " + type.integer + " NOT NULL DEFAULT 0, " +
+                    "PRIMARY KEY (user_id, topic_id)" +
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "topics (" +
@@ -203,7 +277,7 @@ public class Database implements AutoCloseable {
                     "moved_to " + type.integer + ", " +
                     "forum_id " + type.integer + " NOT NULL DEFAULT 0, " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
             
             statement.executeUpdate(
                     "CREATE TABLE IF NOT EXISTS " + prefix + "users (" +
@@ -245,7 +319,7 @@ public class Database implements AutoCloseable {
                     "activate_string VARCHAR(50), " +
                     "activate_key VARCHAR(8), " +
                     "PRIMARY KEY (id)" +
-                    ")" + type.engine + ";");
+                    ")" + type.myIASM + ";");
         }
     }
     
@@ -253,15 +327,15 @@ public class Database implements AutoCloseable {
         MYSQL("INT(10) UNSIGNED", "MEDIUMINT(8) UNSIGNED", "SMALLINT(6)",
               "TINYINT(3) UNSIGNED", "TINYINT(1)", "FLOAT",
               "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT",
-              " ENGINE=MyISAM", "IGNORE "),
+              " ENGINE=MyISAM", " ENGINE=MEMORY", "IGNORE "),
         POSTGRESQL("INT", "INT", "SMALLINT",
                    "SMALLINT", "SMALLINT", "REAL",
                    "SERIAL",
-                   "", ""),   // TODO ignore existing records
+                   "", "", ""),   // TODO ignore existing records
         SQLITE("INTEGER", "INTEGER", "INTEGER",
                "INTEGER", "INTEGER", "FLOAT",
                "INTEGER NOT NULL",
-               "", "ON CONFLICT IGNORE ");
+               "", "", "ON CONFLICT IGNORE ");
         
         public final String integer;
         public final String mediumInt;
@@ -270,12 +344,14 @@ public class Database implements AutoCloseable {
         public final String bool;
         public final String real;
         public final String primaryKey;
-        public final String engine;
+        public final String myIASM;
+        public final String memory;
         public final String ignoreInsert;
         
         private Type(String integer, String mediumInt, String smallInt,
                      String tinyInt, String bool, String real,
-                     String primaryKey, String engine, String ignoreInsert) {
+                     String primaryKey,
+                     String myIASM, String memory, String ignoreInsert) {
             this.integer = integer;
             this.mediumInt = mediumInt;
             this.smallInt = smallInt;
@@ -283,7 +359,8 @@ public class Database implements AutoCloseable {
             this.bool = bool;
             this.real = real;
             this.primaryKey = primaryKey;
-            this.engine = engine;
+            this.myIASM = myIASM;
+            this.memory = memory;
             this.ignoreInsert = ignoreInsert;
         }
     }
