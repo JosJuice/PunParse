@@ -66,7 +66,7 @@ public class PunParse {
                                     "/" + files.length + ": " +
                                     files[i].getName());
                         } else {
-                            System.err.println(errors + "error(s) found when " +
+                            System.err.println(errors + " errors found when " +
                                     "processing file " + (i + 1) + "/" +
                                     files.length + ": " + files[i].getName());
                         }

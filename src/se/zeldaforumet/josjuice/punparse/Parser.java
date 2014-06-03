@@ -14,13 +14,13 @@ public class Parser {
      * @return the value of the field, or <code>null</code> if no value exists
      */
     public static String getUrlQueryValue(String url, String field) {
-        String query;
-        int questionMark = url.indexOf("?");
-        if (questionMark == -1) {   // The input is only the query string
-            query = url;
-        } else {                    // The input is a full URL
-            query = url.substring(questionMark + 1);    // Get only query string
+        int queryStart = url.indexOf("?") + 1; // Query starts after the ?, or
+                                               // at the start if there is no ?
+        int queryEnd = url.indexOf("#") - 1; // Query ends before the #,
+        if (queryEnd == -2) {                // or at the end if there is no #
+            queryEnd = url.length();
         }
+        String query = url.substring(queryStart, queryEnd);
         
         String[] parameters = query.split("&");
         for (String parameter : parameters) {
