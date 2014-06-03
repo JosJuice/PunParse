@@ -31,8 +31,8 @@ public class PunParse {
         System.out.println("Connecting to SQL database...");
         try (Database database = new Database(args[1], null)) {
             if (!append) {
-                System.out.println("Creating tables and indexes...");
-                database.createTablesAndIndexes();
+                System.out.println("Creating tables...");
+                database.createTables();
             }
             System.out.println("Parsing files...");
             File directory = new File(args[0]);
@@ -104,7 +104,7 @@ public class PunParse {
                     // TODO
                     break;
                 case "punviewforum":
-                    // TODO
+                    errors += parseViewforum(element, database);
                     break;
                 case "punindex":
                     // TODO
@@ -118,7 +118,7 @@ public class PunParse {
      * Parses a <code>#punviewtopic</code> element. The data will be placed in a
      * database. If parsing a piece of data (for instance, a post) fails, it
      * will be skipped and the returned error count will be increased by one.
-     * @param element #punviewtopic element
+     * @param element <code>#punviewtopic</code> element
      * @param database database to place data into
      * @return number of errors encountered
      */
@@ -132,6 +132,39 @@ public class PunParse {
             try {
                 Post post = new Post(postElement, topicId);
                 database.insert(post);
+            } catch (IllegalArgumentException e) {
+                errors++;
+                System.err.println("Error in input data: " +
+                                   e.getLocalizedMessage());
+            } catch (SQLException e) {
+                System.err.println("SQL error: " + e.getLocalizedMessage());
+            }
+        }
+        
+        return errors;
+    }
+    
+    /**
+     * Parses a <code>#punviewforum</code> element. The data will be placed in a
+     * database. If parsing a piece of data (for instance, a topic) fails, it
+     * will be skipped and the returned error count will be increased by one.
+     * @param element <code>#punviewforum</code> element
+     * @param database database to place data into
+     * @return number of errors encountered
+     */
+    public static int parseViewforum(Element element, Database database) {
+        int errors = 0;
+        int forumId = findContainerId(element);
+        
+        // Add all posts to database
+        Elements topicElements = element.getElementsByTag("tr");
+        for (Element topicElement : topicElements) {
+            try {
+                // Skip the top row, which only contains headings (th)
+                if (!topicElement.getElementsByTag("td").isEmpty()) {
+                    Topic topic = new Topic(topicElement, forumId);
+                    database.insert(topic);
+                }
             } catch (IllegalArgumentException e) {
                 errors++;
                 System.err.println("Error in input data: " +

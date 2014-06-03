@@ -18,10 +18,11 @@ public class Database implements AutoCloseable {
     private final String prefix;
     
     private final PreparedStatement insertPost;
+    private final PreparedStatement insertTopic;
     
     /**
-     * Sets up a a database. First, a connection will be established.
-     * Then, tables will be created and prepared statements will be initialized.
+     * Sets up a a database. A connection will be established and prepared
+     * statements will be initialized.
      * @param url the URL used to access the database, for instance
      * mysql://localhost/database?user=username&password=password or
      * postgresql://localhost/database?user=username&password=password or
@@ -39,15 +40,21 @@ public class Database implements AutoCloseable {
         connection = DriverManager.getConnection("jdbc:" + url);
         type = Type.MYSQL;          // TODO detect database type
         
-        insertPost = connection.prepareStatement("INSERT " + type.ignoreInsert +
+        insertPost = connection.prepareStatement("INSERT " + type.ignore +
                 "INTO " + prefix + "posts (id, poster, poster_id, message, " +
                 "hide_smilies, posted, edited, edited_by, topic_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        insertTopic = connection.prepareStatement("INSERT " + type.ignore +
+                "INTO " + prefix + "topics (id, poster, subject, posted, " +
+                "last_post, last_post_id, last_poster, num_views, " +
+                "num_replies, closed, sticky, moved_to, forum_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     @Override public void close() throws SQLException {
         connection.close();
         insertPost.close();
+        insertTopic.close();
     }
     
     /**
@@ -74,12 +81,39 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Creates all necessary tables and indexes.
+     * Inserts a topic into the database.
+     * @param topic the topic to insert
      * @throws SQLException if something goes wrong on the SQL side
      */
-    public void createTablesAndIndexes() throws SQLException {
+    public void insert(Topic topic) throws SQLException {
+        insertTopic.setInt(1, topic.getId());
+        insertTopic.setString(2, topic.getPoster());
+        insertTopic.setString(3, topic.getSubject());
+        insertTopic.setLong(4, topic.getPosted());
+        insertTopic.setLong(5, topic.getLastPosted());
+        insertTopic.setInt(6, topic.getLastPostId());
+        insertTopic.setString(7, topic.getLastPoster());
+        insertTopic.setInt(8, topic.getNumViews());
+        insertTopic.setInt(9, topic.getNumReplies());
+        insertTopic.setBoolean(10, topic.getClosed());
+        insertTopic.setBoolean(11, topic.getSticky());
+        if (topic.isMoved()) {
+            insertTopic.setInt(12, topic.getMovedTo());
+        } else {
+            insertTopic.setNull(12, Types.INTEGER);
+        }
+        insertTopic.setInt(13, topic.getId());
+        insertTopic.executeUpdate();
+    }
+    
+    /**
+     * Creates all necessary tables. This includes indexes, the guest user and
+     * the four default user groups.
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    public void createTables() throws SQLException {
         try (Statement statement = connection.createStatement()) {
-            // Create indexes
+            // Create tables
             
             statement.executeUpdate(
                     "CREATE TABLE " + prefix + "bans (" +
@@ -359,7 +393,7 @@ public class Database implements AutoCloseable {
                     "g_edit_posts, g_delete_posts, g_delete_topics, " +
                     "g_set_title, g_search, g_search_users, " +
                     "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
-                    "VALUES(1, 'Administrators', 'Administrator', 1, 1, 1, " +
+                    "VALUES (1, 'Administrators', 'Administrator', 1, 1, 1, " +
                     "1, 1, 1, 1, 1, 1, 1, 0, 0, 0);");
             statement.executeUpdate("INSERT INTO " + prefix + "groups " +
                     "(g_id, g_title, g_user_title, g_read_board, " +
@@ -367,7 +401,7 @@ public class Database implements AutoCloseable {
                     "g_edit_posts, g_delete_posts, g_delete_topics, " +
                     "g_set_title, g_search, g_search_users, " +
                     "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
-                    "VALUES(2, 'Moderators', 'Moderator', 1, 1, 1, 1, 1, 1, " +
+                    "VALUES (2, 'Moderators', 'Moderator', 1, 1, 1, 1, 1, 1, " +
                     "1, 1, 1, 1, 0, 0, 0);");
             statement.executeUpdate("INSERT INTO " + prefix + "groups " +
                     "(g_id, g_title, g_user_title, g_read_board, " +
@@ -375,7 +409,7 @@ public class Database implements AutoCloseable {
                     "g_edit_posts, g_delete_posts, g_delete_topics, " +
                     "g_set_title, g_search, g_search_users, " +
                     "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
-                    "VALUES(3, 'Guest', NULL, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, " +
+                    "VALUES (3, 'Guest', NULL, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, " +
                     "0, 0, 0);");
             statement.executeUpdate("INSERT INTO " + prefix + "groups " +
                     "(g_id, g_title, g_user_title, g_read_board, " +
@@ -383,13 +417,13 @@ public class Database implements AutoCloseable {
                     "g_edit_posts, g_delete_posts, g_delete_topics, " +
                     "g_set_title, g_search, g_search_users, " +
                     "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
-                    "VALUES(4, 'Members', NULL, 1, 1, 1, 1, 1, 1, 1, 0, 1, " +
+                    "VALUES (4, 'Members', NULL, 1, 1, 1, 1, 1, 1, 1, 0, 1, " +
                     "1, 300, 60, 30);");
             
             // Create guest user
             statement.executeUpdate("INSERT INTO " + prefix + "users " +
                     "(id, group_id, username, password, email) " +
-                    "VALUES(1, 3, 'Guest', 'Guest', 'Guest');");
+                    "VALUES (1, 3, 'Guest', 'Guest', 'Guest');");
         }
     }
     
@@ -417,12 +451,12 @@ public class Database implements AutoCloseable {
         public final String unique;
         public final String myIASM;
         public final String memory;
-        public final String ignoreInsert;
+        public final String ignore;
         
         private Type(String integer, String mediumInt, String smallInt,
                      String tinyInt, String bool, String real,
                      String primaryKey, String unique,
-                     String myIASM, String memory, String ignoreInsert) {
+                     String myIASM, String memory, String ignore) {
             this.integer = integer;
             this.mediumInt = mediumInt;
             this.smallInt = smallInt;
@@ -433,7 +467,7 @@ public class Database implements AutoCloseable {
             this.unique = unique;
             this.myIASM = myIASM;
             this.memory = memory;
-            this.ignoreInsert = ignoreInsert;
+            this.ignore = ignore;
         }
     }
     

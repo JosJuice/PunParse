@@ -39,7 +39,7 @@ public final class Post {
                 throw new IllegalArgumentException("Invalid post ID: "+ idText);
             }
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't find post ID.");
+            throw new IllegalArgumentException("Couldn't get post ID.");
         }
         
         try {
@@ -53,27 +53,27 @@ public final class Post {
                 posterId = User.GUEST_ID;
             } else {
                 // Get URL to poster's profile
-                String posterUrl = posterLinks.first().attributes().get("href");
+                String posterUrl = posterLinks.first().attr("href");
                 // Get poster ID from profile URL
                 try {
                     posterId = Integer.parseInt(
-                            Parser.getUrlQueryValue(posterUrl, "id"));
-                } catch (NumberFormatException | NullPointerException e) {
-                    throw new IllegalArgumentException("Couldn't find poster " +
+                            Parser.getQueryValue(posterUrl, "id"));
+                } catch (NullPointerException | NumberFormatException e) {
+                    throw new IllegalArgumentException("Couldn't get poster " +
                                                        "ID of post " + this.id);
                 }
             }
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't find poster " +
+            throw new IllegalArgumentException("Couldn't get poster " +
                                                "of post " + this.id);
         }
         
         try {
-        // Find message text
-        // TODO get BBCode, not just plaintext
-        message = element.getElementsByClass("postmsg").first().text();
+            // Find message text
+            // TODO get BBCode, not just plaintext
+            message = element.getElementsByClass("postmsg").first().text();
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't find message body " +
+            throw new IllegalArgumentException("Couldn't get message body " +
                                                "of post " + this.id);
         }
         
@@ -88,7 +88,7 @@ public final class Post {
         edited = 0;
         editedBy = null;
         
-        // Find topic ID (well, there's not much finding going on, really :))
+        // Set topic ID
         this.topicId = topicId;
     }
     
