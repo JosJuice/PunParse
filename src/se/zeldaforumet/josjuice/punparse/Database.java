@@ -79,6 +79,8 @@ public class Database implements AutoCloseable {
      */
     public void createTablesAndIndexes() throws SQLException {
         try (Statement statement = connection.createStatement()) {
+            // Create indexes
+            
             statement.executeUpdate(
                     "CREATE TABLE " + prefix + "bans (" +
                     "id " + type.primaryKey + ", " +
@@ -322,6 +324,7 @@ public class Database implements AutoCloseable {
                     "PRIMARY KEY (id)" +
                     ")" + type.myIASM + ";");
             
+            // Create indexes
             statement.executeUpdate("CREATE " + type.unique + "INDEX " + prefix +
                     "online_user_id_idx ON " + prefix + "online(user_id);");
             statement.executeUpdate("CREATE INDEX " + prefix +
@@ -348,6 +351,45 @@ public class Database implements AutoCloseable {
                 statement.executeUpdate("CREATE INDEX " + prefix +
                         "search_words_id_idx ON " + prefix + "search_words(id);");
             }
+            
+            // Create the four default groups
+            statement.executeUpdate("INSERT INTO " + prefix + "groups " +
+                    "(g_id, g_title, g_user_title, g_read_board, " +
+                    "g_post_replies, g_post_topics, g_post_polls, " +
+                    "g_edit_posts, g_delete_posts, g_delete_topics, " +
+                    "g_set_title, g_search, g_search_users, " +
+                    "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
+                    "VALUES(1, 'Administrators', 'Administrator', 1, 1, 1, " +
+                    "1, 1, 1, 1, 1, 1, 1, 0, 0, 0);");
+            statement.executeUpdate("INSERT INTO " + prefix + "groups " +
+                    "(g_id, g_title, g_user_title, g_read_board, " +
+                    "g_post_replies, g_post_topics, g_post_polls, " +
+                    "g_edit_posts, g_delete_posts, g_delete_topics, " +
+                    "g_set_title, g_search, g_search_users, " +
+                    "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
+                    "VALUES(2, 'Moderators', 'Moderator', 1, 1, 1, 1, 1, 1, " +
+                    "1, 1, 1, 1, 0, 0, 0);");
+            statement.executeUpdate("INSERT INTO " + prefix + "groups " +
+                    "(g_id, g_title, g_user_title, g_read_board, " +
+                    "g_post_replies, g_post_topics, g_post_polls, " +
+                    "g_edit_posts, g_delete_posts, g_delete_topics, " +
+                    "g_set_title, g_search, g_search_users, " +
+                    "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
+                    "VALUES(3, 'Guest', NULL, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, " +
+                    "0, 0, 0);");
+            statement.executeUpdate("INSERT INTO " + prefix + "groups " +
+                    "(g_id, g_title, g_user_title, g_read_board, " +
+                    "g_post_replies, g_post_topics, g_post_polls, " +
+                    "g_edit_posts, g_delete_posts, g_delete_topics, " +
+                    "g_set_title, g_search, g_search_users, " +
+                    "g_edit_subjects_interval, g_post_flood, g_search_flood) " +
+                    "VALUES(4, 'Members', NULL, 1, 1, 1, 1, 1, 1, 1, 0, 1, " +
+                    "1, 300, 60, 30);");
+            
+            // Create guest user
+            statement.executeUpdate("INSERT INTO " + prefix + "users " +
+                    "(id, group_id, username, password, email) " +
+                    "VALUES(1, 3, 'Guest', 'Guest', 'Guest');");
         }
     }
     
