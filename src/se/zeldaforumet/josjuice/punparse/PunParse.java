@@ -31,8 +31,8 @@ public class PunParse {
         System.out.println("Connecting to SQL database...");
         try (Database database = new Database(args[1], null)) {
             if (!append) {
-                System.out.println("Creating tables...");
-                database.createTables();
+                System.out.println("Creating tables and indexes...");
+                database.createTablesAndIndexes();
             }
             System.out.println("Parsing files...");
             File directory = new File(args[0]);

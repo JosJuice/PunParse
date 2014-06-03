@@ -74,10 +74,10 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Creates all necessary tables.
+     * Creates all necessary tables and indexes.
      * @throws SQLException if something goes wrong on the SQL side
      */
-    public void createTables() throws SQLException {
+    public void createTablesAndIndexes() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(
                     "CREATE TABLE " + prefix + "bans (" +
@@ -321,21 +321,48 @@ public class Database implements AutoCloseable {
                     "activate_key VARCHAR(8), " +
                     "PRIMARY KEY (id)" +
                     ")" + type.myIASM + ";");
+            
+            statement.executeUpdate("CREATE " + type.unique + "INDEX " + prefix +
+                    "online_user_id_idx ON " + prefix + "online(user_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "posts_topic_id_idx ON " + prefix + "posts(topic_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "posts_multi_idx ON " + prefix + "posts(poster_id, topic_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "reports_zapped_idx ON " + prefix + "reports(zapped);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "search_matches_word_id_idx ON " + prefix + "search_matches(word_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "search_matches_post_id_idx ON " + prefix + "search_matches(post_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "topics_forum_id_idx ON " + prefix + "topics(forum_id);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "topics_moved_to_idx ON " + prefix + "topics(moved_to);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "users_registered_idx ON " + prefix + "users(registered);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "users_username_idx ON " + prefix + "users(username);");
+            statement.executeUpdate("CREATE INDEX " + prefix +
+                    "search_cache_ident_idx ON " + prefix + "search_cache(ident);");
+            if (type != Type.MYSQL) {       // For MySQL, this is already done
+                statement.executeUpdate("CREATE INDEX " + prefix +
+                        "search_words_id_idx ON " + prefix + "search_words(id);");
+            }
         }
     }
     
     private enum Type {
         MYSQL("INT(10) UNSIGNED", "MEDIUMINT(8) UNSIGNED", "SMALLINT(6)",
               "TINYINT(3) UNSIGNED", "TINYINT(1)", "FLOAT",
-              "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT",
+              "INT(10) UNSIGNED NOT NULL AUTO_INCREMENT", "UNIQUE ",
               " ENGINE=MyISAM", " ENGINE=MEMORY", "IGNORE "),
         POSTGRESQL("INT", "INT", "SMALLINT",
                    "SMALLINT", "SMALLINT", "REAL",
-                   "SERIAL",
+                   "SERIAL", "",
                    "", "", ""),   // TODO ignore existing records
         SQLITE("INTEGER", "INTEGER", "INTEGER",
                "INTEGER", "INTEGER", "FLOAT",
-               "INTEGER NOT NULL",
+               "INTEGER NOT NULL", "",
                "", "", "ON CONFLICT IGNORE ");
         
         public final String integer;
@@ -345,13 +372,14 @@ public class Database implements AutoCloseable {
         public final String bool;
         public final String real;
         public final String primaryKey;
+        public final String unique;
         public final String myIASM;
         public final String memory;
         public final String ignoreInsert;
         
         private Type(String integer, String mediumInt, String smallInt,
                      String tinyInt, String bool, String real,
-                     String primaryKey,
+                     String primaryKey, String unique,
                      String myIASM, String memory, String ignoreInsert) {
             this.integer = integer;
             this.mediumInt = mediumInt;
@@ -360,6 +388,7 @@ public class Database implements AutoCloseable {
             this.bool = bool;
             this.real = real;
             this.primaryKey = primaryKey;
+            this.unique = unique;
             this.myIASM = myIASM;
             this.memory = memory;
             this.ignoreInsert = ignoreInsert;
