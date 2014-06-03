@@ -13,7 +13,7 @@ public class Parser {
      * @param field the field to get the value of
      * @return the value of the field, or <code>null</code> if no value exists
      */
-    public static String getUrlQueryValue(String url, String field) {
+    public static String getQueryValue(String url, String field) {
         int queryStart = url.indexOf("?") + 1; // Query starts after the ?, or
                                                // at the start if there is no ?
         int queryEnd = url.indexOf("#") - 1; // Query ends before the #,

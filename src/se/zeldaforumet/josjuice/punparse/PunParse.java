@@ -155,7 +155,7 @@ public class PunParse {
         try {
             String topicUrl = element.getElementsByClass("pagelink").first().
                 getElementsByAttribute("href").first().attributes().get("href");
-            return Integer.parseInt(Parser.getUrlQueryValue(topicUrl, "id"));
+            return Integer.parseInt(Parser.getQueryValue(topicUrl, "id"));
         } catch (NumberFormatException | NullPointerException e) {
             return 0;
         }
