@@ -19,8 +19,21 @@ public class PunParse {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        // Find optional arguments
+        boolean append = false;
+        for (String arg : args) {
+            if (arg.equals("--append")) {
+                append = true;
+            }
+        }
+        
+        // Do the work
         System.out.println("Connecting to SQL database...");
         try (Database database = new Database(args[1], null)) {
+            if (!append) {
+                System.out.println("Creating tables...");
+                database.createTables();
+            }
             System.out.println("Parsing files...");
             File directory = new File(args[0]);
             parseDirectory(directory, database);
