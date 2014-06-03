@@ -8,8 +8,6 @@ import org.jsoup.select.Elements;
  */
 public final class Post {
     
-    public static final int UNKNOWN_TOPIC_ID = 0;
-    
     private final boolean isEdited;
     
     // All of the following variables correspond to database columns.
@@ -28,8 +26,7 @@ public final class Post {
      * @param element HTML element representing a post.
      * The element should always have the <code>.blockpost</code> class.
      * @param topicId ID of the topic containing this post.
-     * Use <code>UNKNOWN_TOPIC_ID</code> if unknown.
-     * @throws IllegalArgumentException if some required data is invalid
+     * @throws IllegalArgumentException if required parts of HTML are missing
      */
     public Post(Element element, int topicId) throws IllegalArgumentException {
         try {
@@ -83,7 +80,7 @@ public final class Post {
         // TODO check if smilies need to be displayed
         hideSmilies = true;
         
-        // TODO find date posted
+        // TODO find time posted
         posted = id;
         
         // TODO find out if edited
@@ -140,14 +137,14 @@ public final class Post {
     }
     
     /**
-     * @return Date posted (Unix timestamp)
+     * @return Time posted (Unix timestamp)
      */
     public long getPosted() {
         return posted;
     }
     
     /**
-     * @return Date last edited (Unix timestamp), or 0 if unedited
+     * @return Time last edited (Unix timestamp), or 0 if unedited
      */
     public long getEdited() {
         return edited;

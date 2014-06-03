@@ -126,7 +126,7 @@ public class PunParse {
         int errors = 0;
         
         // Attempt to find topic ID (fails for topics with 1 page)
-        int topicId = Post.UNKNOWN_TOPIC_ID;
+        int topicId = 0;        // 0 will be used as a fallback
         try {
             String topicUrl = element.getElementsByClass("pagelink").first().
                 getElementsByAttribute("href").first().attributes().get("href");
