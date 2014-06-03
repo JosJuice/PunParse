@@ -124,20 +124,7 @@ public class PunParse {
      */
     public static int parseViewtopic(Element element, Database database) {
         int errors = 0;
-        
-        // Attempt to find topic ID (fails for topics with 1 page)
-        int topicId = 0;        // 0 will be used as a fallback
-        try {
-            String topicUrl = element.getElementsByClass("pagelink").first().
-                getElementsByAttribute("href").first().attributes().get("href");
-            topicId = Integer.parseInt(Parser.getUrlQueryValue(topicUrl, "id"));
-        } catch (NumberFormatException | NullPointerException e) {
-            /*
-             * This is reached when the topic ID couldn't be found.
-             * This isn't counted as an error to avoid flooding the user
-             * with errors for all topics that are 1 page long.
-             */
-        }
+        int topicId = findContainerId(element);
         
         // Add all posts to database
         Elements postElements = element.getElementsByClass("blockpost");
@@ -155,6 +142,23 @@ public class PunParse {
         }
         
         return errors;
+    }
+    
+    /**
+     * Attempts to find the ID of a topic or forum based on page links. If there
+     * are no page links, this method will fail and return 0.
+     * @param element An HTML element containing at least one
+     * <code>.pagelink</code> element
+     * @return the ID indicated in the page links, or 0 when failing
+     */
+    public static int findContainerId(Element element) {
+        try {
+            String topicUrl = element.getElementsByClass("pagelink").first().
+                getElementsByAttribute("href").first().attributes().get("href");
+            return Integer.parseInt(Parser.getUrlQueryValue(topicUrl, "id"));
+        } catch (NumberFormatException | NullPointerException e) {
+            return 0;
+        }
     }
 
 }
