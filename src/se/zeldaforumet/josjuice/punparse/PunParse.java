@@ -160,8 +160,8 @@ public class PunParse {
         Elements topicElements = element.getElementsByTag("tr");
         for (Element topicElement : topicElements) {
             try {
-                // Skip the top row, which only contains headings (th)
-                if (!topicElement.getElementsByTag("td").isEmpty()) {
+                // Skip the top row, which only contains headings
+                if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
                     Topic topic = new Topic(topicElement, forumId);
                     database.insert(topic);
                 }
