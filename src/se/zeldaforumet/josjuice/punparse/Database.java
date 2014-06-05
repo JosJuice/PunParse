@@ -48,7 +48,7 @@ public class Database implements AutoCloseable {
                 "INTO " + prefix + "topics (id, poster, subject, posted, " +
                 "last_post, last_post_id, last_poster, num_views, " +
                 "num_replies, closed, sticky, moved_to, forum_id) " +
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?);");
     }
     
     @Override public void close() throws SQLException {
@@ -86,6 +86,7 @@ public class Database implements AutoCloseable {
      * @throws SQLException if something goes wrong on the SQL side
      */
     public void insert(Topic topic) throws SQLException {
+        // TODO make moved topics work
         if (topic.isMoved()) {
             throw new SQLException("A moved topic was not inserted because " +
                                    "the IDs of moved topics are unknown");
@@ -101,12 +102,7 @@ public class Database implements AutoCloseable {
         insertTopic.setInt(9, topic.getNumReplies());
         insertTopic.setBoolean(10, topic.getClosed());
         insertTopic.setBoolean(11, topic.getSticky());
-        if (topic.isMoved()) {
-            insertTopic.setInt(12, topic.getMovedTo());
-        } else {
-            insertTopic.setNull(12, Types.INTEGER);
-        }
-        insertTopic.setInt(13, topic.getId());
+        insertTopic.setInt(12, topic.getId());
         insertTopic.executeUpdate();
     }
     
