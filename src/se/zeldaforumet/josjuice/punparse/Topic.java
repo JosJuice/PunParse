@@ -46,7 +46,7 @@ public final class Topic {
             try {
                 // Find poster username
                 poster = getPoster(tclcon); 
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Couldn't get poster " +
                                                    "of topic " + this.id);
             }
@@ -91,7 +91,7 @@ public final class Topic {
             try {
                 // Find poster username
                 lastPoster = getPoster(tcr);
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Couldn't get last poster " +
                                                    "in topic " + this.id);
             }
@@ -113,19 +113,28 @@ public final class Topic {
      * @param element An element from <code>viewtopic.php</code> containing a
      * link to the topic/post and the username. This is typically a
      * <code>td</code> element, but <code>.intd</code> and <code>.tclcon</code>
-     * can also be used.
+     * can also be used. The username of the poster must be preceded by a
+     * non-breaking space.
      * @return username of poster
      * @throws NullPointerException if the poster cannot be found
+     * @throws IndexOutOfBoundsException if no non-breaking space was found
      */
-    private String getPoster(Element element) throws NullPointerException {
-        // TODO remove the "by " at the beginning
+    private String getPoster(Element element) throws NullPointerException,
+                                                     IndexOutOfBoundsException {
+        String poster;
+        String delimiter;
+        
         Element byuser = element.getElementsByClass("byuser").first();
         if (byuser != null) {
-            return byuser.text();
-        } else {
-            return element.getElementsByAttribute("href").first().
+            poster = byuser.text();
+            delimiter = "\u00A0";
+        } else {        // Necessary because the poll mod doesn't output .byuser
+            poster = element.getElementsByAttribute("href").first().
                     nextSibling().toString();
+            delimiter = "&nbsp;";
         }
+        
+        return poster.substring(poster.indexOf(delimiter) + delimiter.length());
     }
     
     /**
