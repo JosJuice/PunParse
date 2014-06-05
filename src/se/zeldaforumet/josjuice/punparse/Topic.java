@@ -51,7 +51,6 @@ public final class Topic {
                                                    "of topic " + id, e);
             }
             
-            // TODO find out if closed or stickied
             closed = element.hasClass("iclosed");
             sticky = element.hasClass("isticky");
             
@@ -145,7 +144,8 @@ public final class Topic {
     }
     
     /**
-     * @return Topic ID 
+     * @return Topic ID
+     * @bug If the topic has been moved, this is incorrect
      */
     public int getId() {
         return id;
@@ -180,28 +180,31 @@ public final class Topic {
     }
     
     /**
-     * @return The ID of the last post in the topic
+     * @return The ID of the last post in the topic, or 0 if it has been moved
      */
     public int getLastPostId() {
         return lastPostId;
     }
     
     /**
-     * @return The username of the user that last posted in the topic
+     * @return The username of the user that last posted in the topic, or
+     * <code>null</code> if it has been moved
      */
     public String getLastPoster() {
         return lastPoster;
     }
     
     /**
-     * @return The number of times the topic has been viewed
+     * @return The number of times the topic has been viewed, or 0 if it has
+     * been moved
      */
     public int getNumViews() {
         return numViews;
     }
     
     /**
-     * @return The number of posts in the topic, excluding the first post
+     * @return The number of posts in the topic (excluding the first post), or 0
+     * if it has been moved
      */
     public int getNumReplies() {
         return numReplies;
@@ -222,7 +225,7 @@ public final class Topic {
     }
     
     /**
-     * @return The ID of the forum this topic has been moved to, or 0 if it has
+     * @return The ID of the topic this topic has been moved to, or 0 if it has
      * not been moved
      */
     public int getMovedTo() {
