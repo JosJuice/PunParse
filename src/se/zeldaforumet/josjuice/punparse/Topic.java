@@ -45,8 +45,7 @@ public final class Topic {
             
             try {
                 // Find poster username
-                // TODO remove the "by " at the beginning
-                poster = tclcon.getElementsByClass("byuser").first().text();
+                poster = getPoster(tclcon); 
             } catch (NullPointerException e) {
                 throw new IllegalArgumentException("Couldn't get poster " +
                                                    "of topic " + this.id);
@@ -91,8 +90,7 @@ public final class Topic {
             lastPostId = Integer.parseInt(Parser.getQueryValue(postUrl, "pid"));
             try {
                 // Find poster username
-                // TODO remove the "by " at the beginning
-                lastPoster = tcr.getElementsByClass("byuser").first().text();
+                lastPoster = getPoster(tcr);
             } catch (NullPointerException e) {
                 throw new IllegalArgumentException("Couldn't get last poster " +
                                                    "in topic " + this.id);
@@ -108,6 +106,26 @@ public final class Topic {
         
         // Set forum ID
         this.forumId = forumId;
+    }
+    
+    /**
+     * Gets the username of the poster of a topic or the last poster in a topic.
+     * @param element An element from <code>viewtopic.php</code> containing a
+     * link to the topic/post and the username. This is typically a
+     * <code>td</code> element, but <code>.intd</code> and <code>.tclcon</code>
+     * can also be used.
+     * @return username of poster
+     * @throws NullPointerException if the poster cannot be found
+     */
+    private String getPoster(Element element) throws NullPointerException {
+        // TODO remove the "by " at the beginning
+        Element byuser = element.getElementsByClass("byuser").first();
+        if (byuser != null) {
+            return byuser.text();
+        } else {
+            return element.getElementsByAttribute("href").first().
+                    nextSibling().toString();
+        }
     }
     
     /**
