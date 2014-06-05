@@ -14,10 +14,10 @@ public class Parser {
      * @return the value of the field, or <code>null</code> if no value exists
      */
     public static String getQueryValue(String url, String field) {
-        int queryStart = url.indexOf("?") + 1; // Query starts after the ?, or
-                                               // at the start if there is no ?
-        int queryEnd = url.indexOf("#") - 1; // Query ends before the #,
-        if (queryEnd == -2) {                // or at the end if there is no #
+        int queryStart = url.indexOf("?") + 1;  // Query starts after the ?, or
+                                                // at the start if there is no ?
+        int queryEnd = url.indexOf("#");    // Query ends at the #,
+        if (queryEnd == -1) {               // or at the end if there is no #
             queryEnd = url.length();
         }
         String query = url.substring(queryStart, queryEnd);
