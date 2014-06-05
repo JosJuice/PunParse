@@ -53,50 +53,66 @@ public final class Topic {
             
             closed = element.hasClass("iclosed");
             sticky = element.hasClass("isticky");
-            
-            // TODO find out if moved
-            isMoved = false;
-            movedTo = 0;
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get topic ID.", e);
         }
         
         try {
             // Find number of replies (in .tc2)
-            numReplies = Integer.parseInt(element.getElementsByClass("tc2").
-                                          first().text());
+            Element tc2 = element.getElementsByClass("tc2").first();
+            if (tc2.hasText() && !tc2.text().equals("\u00A0")) {
+                isMoved = false;
+                movedTo = 0;
+                numReplies = Integer.parseInt(tc2.text());
+            } else {
+                // If .tc2 is empty, this is a moved topic
+                isMoved = true;
+                movedTo = id;
+                numReplies = 0;
+            }
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get number of " +
                                                "replies of topic " + id, e);
         }
         
-        try {
-            // Find number of replies (in .tc3)
-            numViews = Integer.parseInt(element.getElementsByClass("tc3").
-                                        first().text());
-        } catch (NullPointerException | NumberFormatException e) {
-            throw new IllegalArgumentException("Couldn't get number of " +
-                                               "views of topic " + id, e);
+        if (isMoved) {
+            numViews = 0;
+        } else {
+            try {
+                // Find number of replies (in .tc3)
+                numViews = Integer.parseInt(element.getElementsByClass("tc3").
+                                            first().text());
+            } catch (NullPointerException | NumberFormatException e) {
+                throw new IllegalArgumentException("Couldn't get number of " +
+                                                   "views of topic " + id, e);
+            }
         }
         
-        try {
-            // Find information about recent post
-            Element tcr = element.getElementsByClass("tcr").first();
-            // Find the link to the post
-            Element postLink = tcr.getElementsByAttribute("href").first();
-            // Find post ID
-            String postUrl = postLink.attr("href");
-            lastPostId = Integer.parseInt(Parser.getQueryValue(postUrl, "pid"));
+        if (isMoved) {
+            lastPostId = 0;
+            lastPoster = null;
+        } else {
             try {
-                // Find poster username
-                lastPoster = getPoster(tcr);
-            } catch (NullPointerException | IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Couldn't get last poster " +
-                                                   "in topic " + id, e);
+                // Find information about recent post
+                Element tcr = element.getElementsByClass("tcr").first();
+                // Find the link to the post
+                Element postLink = tcr.getElementsByAttribute("href").first();
+                // Find post ID
+                String postUrl = postLink.attr("href");
+                lastPostId = Integer.parseInt(
+                        Parser.getQueryValue(postUrl, "pid"));
+                try {
+                    // Find poster username
+                    lastPoster = getPoster(tcr);
+                } catch (NullPointerException | IndexOutOfBoundsException e) {
+                    throw new IllegalArgumentException("Couldn't get last " +
+                                                       "poster in topic " + id,
+                                                       e);
+                }
+            } catch (NullPointerException | NumberFormatException e) {
+                throw new IllegalArgumentException("Couldn't get ID of last " +
+                                                   "post in topic " + id, e);
             }
-        } catch (NullPointerException | NumberFormatException e) {
-            throw new IllegalArgumentException("Couldn't get ID of last " +
-                                               "post in topic " + id, e);
         }
         
         // TODO find the actual times

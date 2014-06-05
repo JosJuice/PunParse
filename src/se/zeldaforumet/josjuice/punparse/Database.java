@@ -86,6 +86,10 @@ public class Database implements AutoCloseable {
      * @throws SQLException if something goes wrong on the SQL side
      */
     public void insert(Topic topic) throws SQLException {
+        if (topic.isMoved()) {
+            throw new SQLException("A moved topic was not inserted because " +
+                                   "the IDs of moved topics are unknown");
+        }
         insertTopic.setInt(1, topic.getId());
         insertTopic.setString(2, topic.getPoster());
         insertTopic.setString(3, topic.getSubject());

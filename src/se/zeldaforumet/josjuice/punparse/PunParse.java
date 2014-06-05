@@ -163,7 +163,11 @@ public class PunParse {
                 // Skip the top row, which only contains headings
                 if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
                     Topic topic = new Topic(topicElement, forumId);
-                    database.insert(topic);
+                    if (!topic.isMoved()) {
+                        database.insert(topic);
+                    } else {
+                        System.out.println("Skipped a moved topic");
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 errors++;
