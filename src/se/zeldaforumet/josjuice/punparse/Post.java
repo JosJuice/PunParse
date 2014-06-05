@@ -36,10 +36,11 @@ public final class Post {
                 // Skip first character 'p' and use the rest of the string as ID
                 id = Integer.parseInt(idText.substring(1));
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("Invalid post ID: "+ idText);
+                throw new IllegalArgumentException("Invalid post ID: "
+                                                   + idText, e);
             }
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't get post ID.");
+            throw new IllegalArgumentException("Couldn't get post ID.", e);
         }
         
         try {
@@ -60,12 +61,12 @@ public final class Post {
                             Parser.getQueryValue(posterUrl, "id"));
                 } catch (NullPointerException | NumberFormatException e) {
                     throw new IllegalArgumentException("Couldn't get poster " +
-                                                       "ID of post " + this.id);
+                                                       "ID of post " + id, e);
                 }
             }
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get poster " +
-                                               "of post " + this.id);
+                                               "of post " + id, e);
         }
         
         try {
@@ -74,7 +75,7 @@ public final class Post {
             message = element.getElementsByClass("postmsg").first().text();
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get message body " +
-                                               "of post " + this.id);
+                                               "of post " + id, e);
         }
         
         // TODO check if smilies need to be displayed

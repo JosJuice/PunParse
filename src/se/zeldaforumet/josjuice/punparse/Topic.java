@@ -48,7 +48,7 @@ public final class Topic {
                 poster = getPoster(tclcon); 
             } catch (NullPointerException | IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Couldn't get poster " +
-                                                   "of topic " + this.id);
+                                                   "of topic " + id, e);
             }
             
             // TODO find out if closed or stickied
@@ -59,7 +59,7 @@ public final class Topic {
             isMoved = false;
             movedTo = 0;
         } catch (NullPointerException | NumberFormatException e) {
-            throw new IllegalArgumentException("Couldn't get topic ID.");
+            throw new IllegalArgumentException("Couldn't get topic ID.", e);
         }
         
         try {
@@ -68,7 +68,7 @@ public final class Topic {
                                           first().text());
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get number of " +
-                                               "replies of topic " + this.id);
+                                               "replies of topic " + id, e);
         }
         
         try {
@@ -77,7 +77,7 @@ public final class Topic {
                                         first().text());
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get number of " +
-                                               "views of topic " + this.id);
+                                               "views of topic " + id, e);
         }
         
         try {
@@ -93,11 +93,11 @@ public final class Topic {
                 lastPoster = getPoster(tcr);
             } catch (NullPointerException | IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Couldn't get last poster " +
-                                                   "in topic " + this.id);
+                                                   "in topic " + id, e);
             }
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get ID of last " +
-                                               "post in topic " + this.id);
+                                               "post in topic " + id, e);
         }
         
         // TODO find the actual times
