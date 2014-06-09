@@ -11,7 +11,7 @@ public class Parser {
      * Example: Looking for the field "id" in "id=37&p=1" will return "37".
      * @param url a full URL or the query string part of a URL
      * @param field the field to get the value of
-     * @return the value of the field, or <code>null</code> if no value exists
+     * @return the value of the field, or {@code null} if no value exists
      */
     public static String getQueryValue(String url, String field) {
         int queryStart = url.indexOf("?") + 1;  // Query starts after the ?, or

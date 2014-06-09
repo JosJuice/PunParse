@@ -26,8 +26,8 @@ public final class Topic {
     private final int forumId;
     
     /**
-     * Constructs a <code>Topic</code>.
-     * @param element An HTML <code>tr</code> element from viewtopic.php.
+     * Constructs a {@code Topic}.
+     * @param element An HTML {@code tr} element from {@code viewforum.php}.
      * @param forumId ID of the forum containing this topic.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
@@ -125,11 +125,10 @@ public final class Topic {
     
     /**
      * Gets the username of the poster of a topic or the last poster in a topic.
-     * @param element An element from <code>viewtopic.php</code> containing a
-     * link to the topic/post and the username. This is typically a
-     * <code>td</code> element, but <code>.intd</code> and <code>.tclcon</code>
-     * can also be used. The username of the poster must be preceded by a
-     * non-breaking space.
+     * @param element An element from {@code viewtopic.php} containing a link
+     * to the topic/post and the username. This is typically a {@code td}
+     * element, but {@code .intd} and {@code .tclcon} can also be used. The
+     * username of the poster must be preceded by a non-breaking space.
      * @return username of poster
      * @throws NullPointerException if the poster cannot be found
      * @throws IndexOutOfBoundsException if no non-breaking space was found
@@ -204,7 +203,7 @@ public final class Topic {
     
     /**
      * @return The username of the user that last posted in the topic, or
-     * <code>null</code> if it has been moved
+     * {@code null} if it has been moved
      */
     public String getLastPoster() {
         return lastPoster;

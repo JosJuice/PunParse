@@ -22,9 +22,9 @@ public final class Post {
     private final int topicId;
     
     /**
-     * Constructs a <code>Post</code>.
+     * Constructs a {@code Post}.
      * @param element HTML element representing a post.
-     * The element should always have the <code>.blockpost</code> class.
+     * The element should always have the {@code .blockpost} class.
      * @param topicId ID of the topic containing this post.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */

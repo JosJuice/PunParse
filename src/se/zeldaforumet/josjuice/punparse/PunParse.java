@@ -115,10 +115,10 @@ public class PunParse {
     }
     
     /**
-     * Parses a <code>#punviewtopic</code> element. The data will be placed in a
+     * Parses a {@code #punviewtopic} element. The data will be placed in a
      * database. If parsing a piece of data (for instance, a post) fails, it
      * will be skipped and the returned error count will be increased by one.
-     * @param element <code>#punviewtopic</code> element
+     * @param element {@code #punviewtopic} element
      * @param database database to place data into
      * @return number of errors encountered
      */
@@ -145,10 +145,10 @@ public class PunParse {
     }
     
     /**
-     * Parses a <code>#punviewforum</code> element. The data will be placed in a
+     * Parses a {@code #punviewforum} element. The data will be placed in a
      * database. If parsing a piece of data (for instance, a topic) fails, it
      * will be skipped and the returned error count will be increased by one.
-     * @param element <code>#punviewforum</code> element
+     * @param element {@code #punviewforum} element
      * @param database database to place data into
      * @return number of errors encountered
      */
@@ -156,7 +156,7 @@ public class PunParse {
         int errors = 0;
         int forumId = findContainerId(element);
         
-        // Add all posts to database
+        // Add all topics to database
         Elements topicElements = element.getElementsByTag("tr");
         for (Element topicElement : topicElements) {
             try {
@@ -184,8 +184,8 @@ public class PunParse {
     /**
      * Attempts to find the ID of a topic or forum based on page links. If there
      * are no page links, this method will fail and return 0.
-     * @param element An HTML element containing at least one
-     * <code>.pagelink</code> element
+     * @param element An HTML element containing at least one {@code .pagelink}
+     * element
      * @return the ID indicated in the page links, or 0 when failing
      */
     public static int findContainerId(Element element) {
