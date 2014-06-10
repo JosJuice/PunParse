@@ -19,6 +19,7 @@ public class Database implements AutoCloseable {
     
     private final PreparedStatement insertPost;
     private final PreparedStatement insertTopic;
+    private final PreparedStatement insertCategory;
     
     /**
      * Sets up a a database. A connection will be established and prepared
@@ -49,6 +50,8 @@ public class Database implements AutoCloseable {
                 "last_post, last_post_id, last_poster, num_views, " +
                 "num_replies, closed, sticky, forum_id) " +
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        insertCategory = connection.prepareStatement("INSERT INTO " + prefix +
+                "categories (cat_name, disp_position) VALUES(?, ?);");
     }
     
     @Override public void close() throws SQLException {
@@ -104,6 +107,17 @@ public class Database implements AutoCloseable {
         insertTopic.setBoolean(11, topic.getSticky());
         insertTopic.setInt(12, topic.getId());
         insertTopic.executeUpdate();
+    }
+    
+    /**
+     * Inserts a category into the database, including the forums it contains.
+     * @param category the category to insert
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    public void insert(Category category) throws SQLException {
+        insertCategory.setString(1, category.getName());
+        insertCategory.setInt(2, category.getDisplayPosition());
+        insertCategory.executeUpdate();
     }
     
     /**

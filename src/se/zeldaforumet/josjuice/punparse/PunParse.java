@@ -107,7 +107,7 @@ public class PunParse {
                     errors += parseViewforum(element, database);
                     break;
                 case "punindex":
-                    // TODO
+                    errors += parseIndex(element, database);
                     break;
             }
         }
@@ -182,13 +182,45 @@ public class PunParse {
     }
     
     /**
+     * Parses a {@code #punindex} element. The data will be placed in a
+     * database. If parsing any part of a category fails, the entire category
+     * will be skipped and the returned error count will be increased by one.
+     * @param element {@code #punindex} element
+     * @param database database to place data into
+     * @return number of errors encountered
+     */
+    public static int parseIndex(Element element, Database database) {
+        int errors = 0;
+        
+        // Add all categories, including their forums, to database
+        Elements categoryElements = element.getElementsByClass("blocktable");
+        int position = 0;
+        for (Element categoryElement : categoryElements) {
+            try {
+                Category category = new Category(categoryElement, position);
+                database.insert(category);
+            } catch (IllegalArgumentException e) {
+                errors++;
+                System.err.println("Error in input data: " +
+                                   e.getLocalizedMessage());
+            } catch (SQLException e) {
+                System.err.println("SQL error: " + e.getLocalizedMessage());
+            } finally {
+                position++;
+            }
+        }
+        
+        return errors;
+    }
+    
+    /**
      * Attempts to find the ID of a topic or forum based on page links. If there
      * are no page links, this method will fail and return 0.
      * @param element An HTML element containing at least one {@code .pagelink}
      * element
      * @return the ID indicated in the page links, or 0 when failing
      */
-    public static int findContainerId(Element element) {
+    private static int findContainerId(Element element) {
         try {
             String topicUrl = element.getElementsByClass("pagelink").first().
                               getElementsByTag("a").first().attr("href");
