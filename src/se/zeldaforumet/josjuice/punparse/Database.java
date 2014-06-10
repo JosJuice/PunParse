@@ -47,8 +47,8 @@ public class Database implements AutoCloseable {
         insertTopic = connection.prepareStatement("INSERT " + type.ignore +
                 "INTO " + prefix + "topics (id, poster, subject, posted, " +
                 "last_post, last_post_id, last_poster, num_views, " +
-                "num_replies, closed, sticky, moved_to, forum_id) " +
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?);");
+                "num_replies, closed, sticky, forum_id) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
     }
     
     @Override public void close() throws SQLException {
