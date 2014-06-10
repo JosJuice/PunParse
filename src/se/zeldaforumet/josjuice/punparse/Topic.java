@@ -151,7 +151,7 @@ public final class Topic {
     }
     
     /**
-     * @return true if the topic has been moved and is located in another forum
+     * @return {@code true} if the topic only points at a topic in another forum
      */
     public boolean isMoved() {
         return isMoved;

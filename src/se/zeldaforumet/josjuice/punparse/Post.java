@@ -91,8 +91,8 @@ public final class Post {
     }
     
     /**
-     * @return true if the post is marked as edited. (It is possible to edit a
-     * post without marking it as edited if the silent edit feature is used.)
+     * @return {@code true} if the post is marked as edited. (It's possible to
+     * edit a post without marking it as edited by using silent edit.)
      */
     public boolean isEdited() {
         return isEdited;
@@ -127,8 +127,8 @@ public final class Post {
     }
     
     /**
-     * @return If true, text will never be converted to graphical smilies
-     * when the post is displayed
+     * @return If {@code true}, text will never be converted to graphical
+     * smilies when the post is displayed
      */
     public boolean getHideSmilies() {
         return hideSmilies;
@@ -142,14 +142,15 @@ public final class Post {
     }
     
     /**
-     * @return Time last edited (Unix timestamp), or 0 if unedited
+     * @return Time last edited (Unix timestamp), or 0 if not marked as edited
      */
     public long getEdited() {
         return edited;
     }
     
     /**
-     * @return Username of user that last edited the post, or null if unedited
+     * @return The username of user that last edited the post, or {@code null}
+     * if the post is not marked as edited
      */
     public String getEditedBy() {
         return editedBy;
