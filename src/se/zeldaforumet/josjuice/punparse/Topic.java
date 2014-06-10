@@ -36,7 +36,7 @@ public final class Topic {
             // Find the main text
             Element tclcon = element.getElementsByClass("tclcon").first();
             // Find the link to the topic
-            Element topicLink = tclcon.getElementsByAttribute("href").first();
+            Element topicLink = tclcon.getElementsByTag("a").first();
             // Find topic ID
             String topicUrl = topicLink.attr("href");
             id = Integer.parseInt(Parser.getQueryValue(topicUrl, "id"));
@@ -96,7 +96,7 @@ public final class Topic {
                 // Find information about recent post
                 Element tcr = element.getElementsByClass("tcr").first();
                 // Find the link to the post
-                Element postLink = tcr.getElementsByAttribute("href").first();
+                Element postLink = tcr.getElementsByTag("a").first();
                 // Find post ID
                 String postUrl = postLink.attr("href");
                 lastPostId = Integer.parseInt(
@@ -142,9 +142,9 @@ public final class Topic {
         if (byuser != null) {
             poster = byuser.text();
             delimiter = "\u00A0";
-        } else {        // Necessary because the poll mod doesn't output .byuser
-            poster = element.getElementsByAttribute("href").first().
-                    nextSibling().toString();
+        } else {
+            poster = element.getElementsByTag("a").first().
+                     nextSibling().toString();
             delimiter = "&nbsp;";
         }
         
