@@ -158,8 +158,7 @@ public final class Topic {
     }
     
     /**
-     * @return Topic ID
-     * @bug If the topic has been moved, this is incorrect
+     * @return Topic ID. If the topic has been moved, this is invalid.
      */
     public int getId() {
         return id;
