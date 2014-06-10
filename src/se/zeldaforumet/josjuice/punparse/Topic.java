@@ -10,7 +10,6 @@ public final class Topic {
     private final boolean isMoved;
     
     // All of the following variables correspond to database columns.
-    
     private final int id;
     private final String poster;
     private final String subject;
