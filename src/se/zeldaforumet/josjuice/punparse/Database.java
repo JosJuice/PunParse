@@ -116,7 +116,7 @@ public class Database implements AutoCloseable {
         insertTopic.setInt(9, topic.getNumReplies());
         insertTopic.setBoolean(10, topic.getClosed());
         insertTopic.setBoolean(11, topic.getSticky());
-        insertTopic.setInt(12, topic.getId());
+        insertTopic.setInt(12, topic.getForumId());
         insertTopic.executeUpdate();
     }
     
