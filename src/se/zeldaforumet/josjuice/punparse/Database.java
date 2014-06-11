@@ -20,6 +20,8 @@ public class Database implements AutoCloseable {
     private final PreparedStatement insertPost;
     private final PreparedStatement insertTopic;
     private final PreparedStatement insertCategory;
+    private final PreparedStatement insertForum;
+    private final PreparedStatement insertRedirectForum;
     
     /**
      * Sets up a a database. A connection will be established and prepared
@@ -52,6 +54,15 @@ public class Database implements AutoCloseable {
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         insertCategory = connection.prepareStatement("INSERT INTO " + prefix +
                 "categories (cat_name, disp_position) VALUES(?, ?);");
+        insertForum = connection.prepareStatement("INSERT " + type.ignore +
+                "INTO " + prefix + "forums (id, forum_name, forum_desc, " +
+                "num_topics, num_posts, last_post, last_post_id, " +
+                "last_poster, sort_by, disp_position, cat_id) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+        insertRedirectForum = connection.prepareStatement("INSERT " + 
+                type.ignore + "INTO " + prefix + "forums (forum_name, " +
+                "forum_desc, redirect_url, disp_position, cat_id) " +
+                "VALUES(?, ?, ?, ?, ?);");
     }
     
     @Override public void close() throws SQLException {
@@ -110,6 +121,38 @@ public class Database implements AutoCloseable {
     }
     
     /**
+     * Inserts a forum into the database.
+     * @param forum the forum to insert
+     * @param displayPosition the location of the forum within its category
+     * @param categoryId the ID of the category this forum is in
+     * @throws SQLException if something goes wrong on the SQL side
+     */
+    private void insert(Forum forum, int displayPosition, int categoryId)
+            throws SQLException {
+        if (forum.isRedirect()) {
+            insertRedirectForum.setString(1, forum.getName());
+            insertRedirectForum.setString(2, forum.getDescription());
+            insertRedirectForum.setString(3, forum.getRedirectUrl());
+            insertRedirectForum.setInt(4, displayPosition);
+            insertRedirectForum.setInt(5, categoryId);
+            insertRedirectForum.executeUpdate();
+        } else {
+            insertForum.setInt(1, forum.getId());
+            insertForum.setString(2, forum.getName());
+            insertForum.setString(3, forum.getDescription());
+            insertForum.setInt(4, forum.getNumTopics());
+            insertForum.setInt(5, forum.getNumPosts());
+            insertForum.setInt(6, forum.getLastPosted());
+            insertForum.setInt(7, forum.getLastPostId());
+            insertForum.setString(8, forum.getLastPoster());
+            insertForum.setBoolean(9, forum.getSortByTopicStart());
+            insertForum.setInt(10, displayPosition);
+            insertForum.setInt(11, categoryId);
+            insertForum.executeUpdate();
+        }
+    }
+    
+    /**
      * Inserts a category into the database, including the forums it contains.
      * @param category the category to insert
      * @throws SQLException if something goes wrong on the SQL side
@@ -118,6 +161,13 @@ public class Database implements AutoCloseable {
         insertCategory.setString(1, category.getName());
         insertCategory.setInt(2, category.getDisplayPosition());
         insertCategory.executeUpdate();
+        
+        Forum[] forums = category.getForums();
+        int displayPosition = 0;
+        for (Forum forum : forums) {
+            insert(forum, displayPosition, category.getId());
+            displayPosition++;
+        }
     }
     
     /**

@@ -1,6 +1,7 @@
 package se.zeldaforumet.josjuice.punparse;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * @author JosJuice
@@ -10,6 +11,7 @@ public final class Category {
     private final Forum[] forums;
     
     // All of the following variables correspond to database columns.
+    private final int id;
     private final String name;
     private final int displayPosition;
     
@@ -20,7 +22,8 @@ public final class Category {
      * @param displayPosition categories will be sorted by this when displayed
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Category(Element element, int displayPosition) {
+    public Category(Element element, int displayPosition)
+            throws IllegalArgumentException {
         try {
             name = element.getElementsByTag("h2").first().text();
         } catch (NullPointerException e) {
@@ -30,8 +33,37 @@ public final class Category {
         // TODO use a more accurate value when database already has categories
         this.displayPosition = displayPosition;
         
-        // TODO handle forums
-        forums = new Forum[0];
+        // TODO this isn't the real ID. Might cause problems with existing data
+        id = displayPosition;
+        
+        // Parse the forums that are in this category
+        try {
+            Elements forumElements = element.getElementsByTag("tr");
+            forumElements.remove(0);    // The first row only contains headings
+            forums = new Forum[forumElements.size()];
+            int index = 0;
+            for (Element forumElement : forumElements) {
+                forums[index] = new Forum(forumElement);
+                index++;
+            }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Couldn't get forums in " +
+                                               "category \"" + name + "\"", e);
+        }
+    }
+    
+    /**
+     * @return All forums that are contained in this {@code Category}
+     */
+    public Forum[] getForums() {
+        return forums;
+    }
+    
+    /**
+     * @return Category ID
+     */
+    public int getId() {
+        return id;
     }
     
     /**
