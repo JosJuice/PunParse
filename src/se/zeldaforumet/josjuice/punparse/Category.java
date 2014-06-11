@@ -43,7 +43,7 @@ public final class Category {
             forums = new Forum[forumElements.size()];
             int index = 0;
             for (Element forumElement : forumElements) {
-                forums[index] = new Forum(forumElement);
+                forums[index] = new Forum(forumElement, index, id);
                 index++;
             }
         } catch (NullPointerException e) {

@@ -127,14 +127,14 @@ public class Database implements AutoCloseable {
      * @param categoryId the ID of the category this forum is in
      * @throws SQLException if something goes wrong on the SQL side
      */
-    private void insert(Forum forum, int displayPosition, int categoryId)
+    private void insert(Forum forum)
             throws SQLException {
         if (forum.isRedirect()) {
             insertRedirectForum.setString(1, forum.getName());
             insertRedirectForum.setString(2, forum.getDescription());
             insertRedirectForum.setString(3, forum.getRedirectUrl());
-            insertRedirectForum.setInt(4, displayPosition);
-            insertRedirectForum.setInt(5, categoryId);
+            insertRedirectForum.setInt(4, forum.getDisplayPosition());
+            insertRedirectForum.setInt(5, forum.getCategoryId());
             insertRedirectForum.executeUpdate();
         } else {
             insertForum.setInt(1, forum.getId());
@@ -146,8 +146,8 @@ public class Database implements AutoCloseable {
             insertForum.setInt(7, forum.getLastPostId());
             insertForum.setString(8, forum.getLastPoster());
             insertForum.setBoolean(9, forum.getSortByTopicStart());
-            insertForum.setInt(10, displayPosition);
-            insertForum.setInt(11, categoryId);
+            insertForum.setInt(10, forum.getDisplayPosition());
+            insertForum.setInt(11, forum.getCategoryId());
             insertForum.executeUpdate();
         }
     }
@@ -163,10 +163,8 @@ public class Database implements AutoCloseable {
         insertCategory.executeUpdate();
         
         Forum[] forums = category.getForums();
-        int displayPosition = 0;
         for (Forum forum : forums) {
-            insert(forum, displayPosition, category.getId());
-            displayPosition++;
+            insert(forum);
         }
     }
     

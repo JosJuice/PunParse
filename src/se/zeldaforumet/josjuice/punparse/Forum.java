@@ -21,13 +21,16 @@ public final class Forum {
     private final int lastPostId;
     private final String lastPoster;
     private final boolean sortByTopicStart;
+    private final int displayPosition;
+    private final int categoryId;
     
     /**
      * Constructs a {@code Forum}.
      * @param element An HTML {@code tr} element from {@code index.php}.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Forum(Element element) throws IllegalArgumentException {
+    public Forum(Element element, int displayPosition, int categoryId)
+            throws IllegalArgumentException {
         // Reject elements that would cause problems later
         if (element == null || !element.tagName().equals("tr")) {
             throw new IllegalArgumentException("Invalid forum element.");
@@ -130,6 +133,12 @@ public final class Forum {
         
         // TODO get the actual value of this somehow
         sortByTopicStart = false;
+        
+        // Set display position
+        this.displayPosition = displayPosition;
+        
+        // Set category ID
+        this.categoryId = categoryId;
     }
     
     /**
@@ -210,6 +219,20 @@ public final class Forum {
      */
     public boolean getSortByTopicStart() {
         return sortByTopicStart;
+    }
+    
+    /**
+     * @return The position this forum will be displayed at within its category
+     */
+    public int getDisplayPosition() {
+        return displayPosition;
+    }
+    
+    /**
+     * @return The ID of the category containing this forum
+     */
+    public int getCategoryId() {
+        return categoryId;
     }
     
 }
