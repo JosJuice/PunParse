@@ -34,7 +34,7 @@ public final class Category {
         this.displayPosition = displayPosition;
         
         // TODO this isn't the real ID. Might cause problems with existing data
-        id = displayPosition;
+        id = displayPosition + 1;
         
         // Parse the forums that are in this category
         try {
