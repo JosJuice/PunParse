@@ -80,9 +80,6 @@ public final class Forum {
         if (isRedirect) {
             numTopics = 0;
             numPosts = 0;
-            lastPosted = 0;
-            lastPostId = 0;
-            lastPoster = null;
         } else {
             try {
                 // Find number of topics (in .tc2)
@@ -101,10 +98,17 @@ public final class Forum {
                 throw new IllegalArgumentException("Couldn't get number of " +
                                                    "posts in forum " + id, e);
             }
-            
-            try {
-                // Find information about recent post
-                Element tcr = element.getElementsByClass("tcr").first();
+        }
+        
+        try {
+            // Find information about recent post
+            Element tcr = element.getElementsByClass("tcr").first();
+            if (!tcr.hasText() || tcr.text().equals("\u00A0")) {
+                // There is no recent post, so we use the default values.
+                // This applies to empty forums and redirect forums.
+                lastPostId = 0;
+                lastPoster = null;
+            } else {
                 // Find the link to the post
                 Element postLink = tcr.getElementsByTag("a").first();
                 // Find post ID
@@ -122,13 +126,13 @@ public final class Forum {
                                                        "poster in forum " + id,
                                                        e);
                 }
-            } catch (NullPointerException | NumberFormatException e) {
-                throw new IllegalArgumentException("Couldn't get ID of last " +
-                                                   "post in forum " + id, e);
             }
             
             // TODO find the actual time
             lastPosted = lastPostId;
+        } catch (NullPointerException | NumberFormatException e) {
+            throw new IllegalArgumentException("Couldn't get ID of last " +
+                                               "post in forum " + id, e);
         }
         
         // TODO get the actual value of this somehow
@@ -177,29 +181,29 @@ public final class Forum {
     }
     
     /**
-     * @return The number of topics, or 0 if this is a redirect forum
+     * @return The number of topics, (0 if this is a redirect forum)
      */
     public int getNumTopics() {
         return numTopics;
     }
     
     /**
-     * @return The number of posts, or 0 if this is a redirect forum
+     * @return The number of posts, (0 if this is a redirect forum)
      */
     public int getNumPosts() {
         return numPosts;
     }
     
     /**
-     * @return The time the last post was posted (Unix timestamp), or 0 if this
-     * is a redirect forum
+     * @return The time the last post was posted (Unix timestamp), or 0 if there
+     * are no posts
      */
     public int getLastPosted() {
         return lastPosted;
     }
     
     /**
-     * @return The ID of the last post, or 0 if this is a redirect forum
+     * @return The ID of the last post, or 0 if there are no posts
      */
     public int getLastPostId() {
         return lastPostId;
@@ -207,15 +211,15 @@ public final class Forum {
     
     /**
      * @return The username of the user that last posted in the forum, or
-     * {@code null} if this is a redirect forum
+     * {@code null} if there are no posts
      */
     public String getLastPoster() {
         return lastPoster;
     }
     
     /**
-     * @return true if the forum is sorted by when topics were started, false if
-     * the forum is sorted by when topics were last posted in
+     * @return {@code true} if the forum is sorted by when topics were started,
+     * {@code false} if the forum is sorted by when topics were last posted in
      */
     public boolean getSortByTopicStart() {
         return sortByTopicStart;
