@@ -224,7 +224,7 @@ public class PunParse {
         try {
             String topicUrl = element.getElementsByClass("pagelink").first().
                               getElementsByTag("a").first().attr("href");
-            return Integer.parseInt(Parser.getQueryValue(topicUrl, "id"));
+            return Integer.parseInt(TextParser.getQueryValue(topicUrl, "id"));
         } catch (NumberFormatException | NullPointerException e) {
             return 0;
         }

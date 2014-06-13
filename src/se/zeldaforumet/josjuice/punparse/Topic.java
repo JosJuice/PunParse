@@ -38,7 +38,7 @@ public final class Topic {
             Element topicLink = tclcon.getElementsByTag("a").first();
             // Find topic ID
             String topicUrl = topicLink.attr("href");
-            id = Integer.parseInt(Parser.getQueryValue(topicUrl, "id"));
+            id = Integer.parseInt(TextParser.getQueryValue(topicUrl, "id"));
             // Find topic subject
             subject = topicLink.text();
             
@@ -99,7 +99,7 @@ public final class Topic {
                 // Find post ID
                 String postUrl = postLink.attr("href");
                 lastPostId = Integer.parseInt(
-                        Parser.getQueryValue(postUrl, "pid"));
+                        TextParser.getQueryValue(postUrl, "pid"));
                 try {
                     // Find poster username
                     lastPoster = getPoster(tcr);

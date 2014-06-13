@@ -54,7 +54,7 @@ public final class Post {
             } else {
                 // Get poster ID from profile URL
                 try {
-                    posterId = Integer.parseInt(Parser.getQueryValue(
+                    posterId = Integer.parseInt(TextParser.getQueryValue(
                                posterLink.attr("href"), "id"));
                 } catch (NullPointerException | NumberFormatException e) {
                     throw new IllegalArgumentException("Couldn't get poster " +

@@ -50,7 +50,7 @@ public final class Forum {
             } else {
                 try {
                     // Find the forum ID
-                    id = Integer.parseInt(Parser.getQueryValue(url, "id"));
+                    id = Integer.parseInt(TextParser.getQueryValue(url, "id"));
                 } catch (NullPointerException | NumberFormatException e) {
                     throw new IllegalArgumentException("Couldn't get forum ID.",
                                                        e);
@@ -114,7 +114,7 @@ public final class Forum {
                 // Find post ID
                 String postUrl = postLink.attr("href");
                 lastPostId = Integer.parseInt(
-                        Parser.getQueryValue(postUrl, "pid"));
+                        TextParser.getQueryValue(postUrl, "pid"));
                 
                 try {
                     // Find poster username

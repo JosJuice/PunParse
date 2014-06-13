@@ -4,7 +4,7 @@ package se.zeldaforumet.josjuice.punparse;
  * Contains various methods for parsing text.
  * @author Jos
  */
-public class Parser {
+public class TextParser {
     
     /**
      * Gets the value of a field in a URL query string.
