@@ -16,21 +16,22 @@ public class Database implements AutoCloseable {
     private final Connection connection;
     private final Type type;
     private final String prefix;
+    private boolean isClosed = false;
     
     private final PreparedStatement insertPost;
     private final PreparedStatement insertTopic;
-    private final PreparedStatement insertCategory;
     private final PreparedStatement insertForum;
     private final PreparedStatement insertRedirectForum;
+    private final PreparedStatement insertCategory;
     
     /**
      * Sets up a a database. A connection will be established and prepared
-     * statements will be initialized.
+     * statements will be initialized. When this database is not going to be
+     * used anymore, call the {@link close()} method to free up resources.
      * @param url the URL used to access the database, for instance
-     * mysql://localhost/database?user=username&password=password or
-     * postgresql://localhost/database?user=username&password=password or
-     * sqlite:database.db
-     * (do not include a preceding jdbc:)
+     * {@code postgresql://localhost/database?user=username&password=password}
+     * or {@code mysql://localhost/database?user=username&password=password}
+     * or {@code sqlite:database.db}. Do not include a preceding {@code jdbc:}.
      * @param prefix a short string to prefix table names with (can be null)
      * @throws SQLException if something goes wrong on the SQL side
      */
@@ -66,17 +67,26 @@ public class Database implements AutoCloseable {
     }
     
     @Override public void close() throws SQLException {
+        isClosed = true;
         connection.close();
         insertPost.close();
         insertTopic.close();
+        insertForum.close();
+        insertRedirectForum.close();
+        insertCategory.close();
     }
     
     /**
      * Inserts a post into the database.
      * @param post the post to insert
      * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
      */
     public void insert(Post post) throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
         insertPost.setInt(1, post.getId());
         insertPost.setString(2, post.getPoster());
         insertPost.setInt(3, post.getPosterId());
@@ -98,8 +108,13 @@ public class Database implements AutoCloseable {
      * Inserts a topic into the database.
      * @param topic the topic to insert
      * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
      */
     public void insert(Topic topic) throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
         // TODO make moved topics work
         if (topic.isMoved()) {
             throw new SQLException("A moved topic was not inserted because " +
@@ -126,9 +141,13 @@ public class Database implements AutoCloseable {
      * @param displayPosition the location of the forum within its category
      * @param categoryId the ID of the category this forum is in
      * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
      */
-    private void insert(Forum forum)
-            throws SQLException {
+    private void insert(Forum forum) throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
         if (forum.isRedirect()) {
             insertRedirectForum.setString(1, forum.getName());
             insertRedirectForum.setString(2, forum.getDescription());
@@ -156,8 +175,13 @@ public class Database implements AutoCloseable {
      * Inserts a category into the database, including the forums it contains.
      * @param category the category to insert
      * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
      */
     public void insert(Category category) throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
         insertCategory.setString(1, category.getName());
         insertCategory.setInt(2, category.getDisplayPosition());
         insertCategory.executeUpdate();
@@ -170,10 +194,15 @@ public class Database implements AutoCloseable {
     
     /**
      * Creates all necessary tables. This includes indexes, the guest user and
-     * the four default user groups.
+     * the four default user groups. Don't use this if the tables already exist.
      * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
      */
     public void createTables() throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
         try (Statement statement = connection.createStatement()) {
             // Create tables
             
