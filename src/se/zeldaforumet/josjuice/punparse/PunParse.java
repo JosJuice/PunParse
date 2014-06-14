@@ -8,6 +8,8 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Parses data from PunBB HTML output to an SQL database.
@@ -36,50 +38,58 @@ public class PunParse {
             }
             System.out.println("Parsing files...");
             File directory = new File(args[0]);
-            parseDirectory(directory, database);
+            parseFiles(getFilesInDirectory(directory), database);
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
         }
     }
     
     /**
-     * Parses every file in a directory, including files in subdirectories.
-     * The data from the files will be placed in a database.
-     * @param directory directory containing zero or more files to parse
+     * Finds all files in a folder, including subfolders.
+     * @param directory The directory to find files in. If this is not a
+     * directory, it will be treated as a directory containing no files.
+     * @return a LinkedList of File objects for all files in the directory
+     */
+    public static LinkedList<File> getFilesInDirectory(File directory) {
+        LinkedList<File> result = new LinkedList();
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                result.addAll(getFilesInDirectory(file));
+            } else {
+                result.add(file);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Parses files, placing their data in a database.
+     * @param files the files to parse
      * @param database database to place data into
      */
-    public static void parseDirectory(File directory, Database database) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    // Parse subdirectories recursively
-                    System.out.println("Entering subdirectory...");
-                    parseDirectory(files[i], database);
-                    System.out.println("Exiting subdirectory...");
+    public static void parseFiles(Collection<File> files, Database database) {
+        // These values are only used for displaying stats
+        int currentFile = 0;
+        int totalFiles = files.size();
+        
+        for (File file : files) {
+            currentFile++;
+            try {
+                Document document = Jsoup.parse(file, null);
+                int errors = parseDocument(document, database);
+                if (errors == 0) {
+                    System.out.println("Processed file " + currentFile + "/" +
+                                       totalFiles + ": " + file.getName());
                 } else {
-                    try {
-                        Document document = Jsoup.parse(files[i], null);
-                        int errors = parseDocument(document, database);
-                        if (errors == 0) {
-                            System.out.println("Processed file " + (i + 1) +
-                                    "/" + files.length + ": " +
-                                    files[i].getName());
-                        } else {
-                            System.err.println(errors + " errors found when " +
-                                    "processing file " + (i + 1) + "/" +
-                                    files.length + ": " + files[i].getName());
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Could not read file " +
-                                           (i + 1) + "/" + files.length + ": " +
-                                           files[i].getName());
-                    }
+                    System.err.println("Processed file " + currentFile + "/" +
+                                       totalFiles + " with " + errors +
+                                       " errors: " + file.getName());
                 }
+            } catch (IOException e) {
+                System.err.println("Could not read file " + currentFile + "/" +
+                                   totalFiles + ": " + file.getName());
             }
-        } else {
-            System.err.println("Could not read directory: " +
-                               directory.getPath());
         }
     }
     
