@@ -69,7 +69,7 @@ public class PunParse {
      * @param database database to place data into
      */
     public static void parseFiles(Collection<File> files, Database database) {
-        // These values are only used for displaying stats
+        // These two variables are only used for displaying stats
         int currentFile = 0;
         int totalFiles = files.size();
         
