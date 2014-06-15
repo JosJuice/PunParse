@@ -2,7 +2,7 @@ package se.zeldaforumet.josjuice.punparse;
 
 /**
  * Contains various methods for parsing text.
- * @author Jos
+ * @author JosJuice
  */
 public class TextParser {
     

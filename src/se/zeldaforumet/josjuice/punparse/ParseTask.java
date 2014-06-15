@@ -3,8 +3,9 @@ package se.zeldaforumet.josjuice.punparse;
 import org.jsoup.nodes.Document;
 
 /**
- * Represents a task of parsing that needs to be carried out.
- * @author Jos
+ * Represents a task of parsing that needs to be carried out. This is a wrapper
+ * around {@code Document} with some additional metadata.
+ * @author JosJuice
  */
 public final class ParseTask {
     

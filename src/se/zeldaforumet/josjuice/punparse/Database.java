@@ -9,7 +9,7 @@ import java.sql.Types;
 
 /**
  * Connects to an SQL database and inserts data.
- * @author Jos
+ * @author JosJuice
  */
 public class Database implements AutoCloseable {
     

@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 
 /**
  * Consumes {@link ParseTask}s and writes data from them to a {@link Database}.
- * @author Jos
+ * @author JosJuice
  */
 public class ParseThread extends Thread {
     
@@ -17,7 +17,9 @@ public class ParseThread extends Thread {
     
     /**
      * Creates a {@code ParseThread}.
-     * @param queue a queue containing {@code ParseTasks} to parse
+     * @param queue A queue containing {@link ParseTask}s to parse. Other
+     * threads are expected to add {@code ParseTask}s to it while this thread is
+     * running, but it could also contain {@code ParseTask}s from the start.
      * @param database database to place data into
      */
     public ParseThread(BlockingQueue<ParseTask> queue, Database database) {
@@ -26,10 +28,10 @@ public class ParseThread extends Thread {
     }
     
     /**
-     * Parses {@link ParseTask}s from the queue. This will finish running when
-     * it has been interrupted at least once and the queue is empty. When
-     * finished running, the database will be closed, so this thread can only be
-     * used once.
+     * Parses {@link ParseTask}s from the queue. Interrupting this thread while
+     * this is running is used to signal that no more {@code ParseTask}s will be
+     * added to the queue. After being interrupted, this will continue parsing
+     * until the queue is empty, at which point the database will be closed.
      */
     @Override public void run() {
         boolean hasBeenInterrupted = false;
