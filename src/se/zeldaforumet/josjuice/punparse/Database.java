@@ -8,7 +8,9 @@ import java.sql.Statement;
 import java.sql.Types;
 
 /**
- * Connects to an SQL database and inserts data.
+ * Connects to an SQL database and inserts data. This class is thread safe, but
+ * performance may be affected if many threads access the same object since the
+ * connection to the database only can be used by one thread at a time.
  * @author JosJuice
  */
 public class Database implements AutoCloseable {
