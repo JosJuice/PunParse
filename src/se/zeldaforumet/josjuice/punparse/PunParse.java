@@ -36,17 +36,21 @@ public class PunParse {
                 System.out.println("Creating tables...");
                 database.createTables();
             }
-            System.out.println("Parsing files...");
+            
+            System.out.println("Finding files to parse...");
+            File directory = new File(args[0]);
+            LinkedList<File> files = getFilesInDirectory(directory);
+            
             /*
              * 16 is just an arbitrary size for the queue. It can be adjusted to
              * something else without any trouble. Just don't make it way too
              * large - we don't want to be able to fill RAM with documents.
              */
+            System.out.println("Parsing files...");
             ArrayBlockingQueue<ParseTask> queue = new ArrayBlockingQueue<>(16);
             ParseThread parseThread = new ParseThread(queue, database);
             parseThread.start();
-            File directory = new File(args[0]);
-            filesToParseTasks(getFilesInDirectory(directory), queue);
+            filesToParseTasks(files, queue);
             parseThread.interrupt();
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
