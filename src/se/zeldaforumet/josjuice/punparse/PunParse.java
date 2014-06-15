@@ -2,13 +2,13 @@ package se.zeldaforumet.josjuice.punparse;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 /**
  * Parses data from PunBB HTML output to an SQL database.
@@ -92,8 +92,8 @@ public class PunParse {
         for (File file : files) {
             currentFile++;
             try {
-                Document document = Jsoup.parse(file, null);
-                ParseTask parseTask = new ParseTask(document, currentFile,
+                byte[] bytes = Files.readAllBytes(file.toPath());
+                ParseTask parseTask = new ParseTask(bytes, currentFile,
                                                     totalFiles, file.getName());
                 queue.put(parseTask);
             } catch (IOException e) {

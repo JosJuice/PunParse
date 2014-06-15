@@ -1,7 +1,11 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.concurrent.BlockingQueue;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -28,8 +32,9 @@ public class ParseThread extends Thread {
     }
     
     /**
-     * Parses {@link ParseTask}s from the queue. Interrupting this thread while
-     * this is running is used to signal that no more {@code ParseTask}s will be
+     * Parses {@link ParseTask}s from the queue. Progress will be displayed to
+     * the user using command-line output. Interrupting this thread while this
+     * is running is used to signal that no more {@code ParseTask}s will be
      * added to the queue. After being interrupted, this will continue parsing
      * until the queue is empty, at which point the database will be closed.
      */
@@ -37,8 +42,13 @@ public class ParseThread extends Thread {
         boolean hasBeenInterrupted = false;
         while (!hasBeenInterrupted || !queue.isEmpty()) {
             try {
+                // Parse the HTML bytes into a jsoup Document that we can use
                 ParseTask task = queue.take();
-                int errors = parseDocument(task.getDocument(), database);
+                InputStream is = new ByteArrayInputStream(task.getHtml());
+                Document document = Jsoup.parse(is, null, "");
+                
+                // Get the data we want from the Document
+                int errors = parseDocument(document, database);
                 if (errors == 0) {
                     System.out.println("Processed " + task);
                 } else {
@@ -47,6 +57,8 @@ public class ParseThread extends Thread {
                 }
             } catch (InterruptedException e) {
                 hasBeenInterrupted = true;
+            } catch (IOException e) {
+                System.out.println("Could");
             }
         }
         try {
