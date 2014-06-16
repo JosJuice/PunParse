@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,17 +19,21 @@ public class ParseThread extends Thread {
     
     private BlockingQueue<ParseTask> queue;
     private Database database;
+    private UserInterface ui;
     
     /**
      * Creates a {@code ParseThread}.
      * @param queue A queue containing {@link ParseTask}s to parse. Other
      * threads are expected to add {@code ParseTask}s to it while this thread is
      * running, but it could also contain {@code ParseTask}s from the start.
-     * @param database database to place data into
+     * @param database A database to place data into.
+     * @param ui A {@link UserInterface} for progress display, or {@code null}.
      */
-    public ParseThread(BlockingQueue<ParseTask> queue, Database database) {
+    public ParseThread(BlockingQueue<ParseTask> queue, Database database,
+                       UserInterface ui) {
         this.queue = queue;
         this.database = database;
+        this.ui = ui;
     }
     
     /**
@@ -42,29 +47,32 @@ public class ParseThread extends Thread {
         boolean hasBeenInterrupted = false;
         while (!hasBeenInterrupted || !queue.isEmpty()) {
             try {
-                // Parse the HTML bytes into a jsoup Document that we can use
                 ParseTask task = queue.take();
-                InputStream is = new ByteArrayInputStream(task.getHtml());
-                Document document = Jsoup.parse(is, null, "");
-                
-                // Get the data we want from the Document
-                int errors = parseDocument(document, database);
-                if (errors == 0) {
-                    System.out.println("Processed " + task);
-                } else {
-                    System.err.println(errors + " errors encountered " +
-                                       "when parsing " + task);
+                try {
+                    // Parse HTML bytes into a jsoup Document that we can use
+                    InputStream is = new ByteArrayInputStream(task.getHtml());
+                    Document doc = Jsoup.parse(is, null, "");
+
+                    // Get the data we want from the Document
+                    LinkedList<String> errors = parseDocument(doc, database);
+                    if (ui != null ) {
+                        ui.addToProgress(task.getName(), errors);
+                    }
+                } catch (IOException e) {
+                    if (ui != null) {
+                        ui.addToProgress(task.getName(), "Couldn't get data.");
+                    }
                 }
             } catch (InterruptedException e) {
                 hasBeenInterrupted = true;
-            } catch (IOException e) {
-                System.out.println("Could");
             }
         }
         try {
             database.close();
         } catch (SQLException e) {
-            System.err.println("SQL error: " + e.getLocalizedMessage());
+            if (ui != null) {
+                ui.printError("SQL error: " + e.getLocalizedMessage());
+            }
         }
     }
     
@@ -76,27 +84,25 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static int parseDocument(Document document, Database database) {
-        int errors = 0;
-        // There should only be one .pun element, but handling more doesn't hurt
-        for (Element element : document.getElementsByClass("pun")) {
-            switch (element.id()) {
+    public static LinkedList<String> parseDocument(Document document,
+                                                   Database database) {
+        Element punElement = document.getElementsByClass("pun").first();
+        if (punElement != null) {
+            switch (punElement.id()) {
                 case "punviewpoll":
                 case "punviewtopic":
-                    errors += parseViewtopic(element, database);
-                    break;
+                    return parseViewtopic(punElement, database);
                 case "punprofile":
                     // TODO
                     break;
                 case "punviewforum":
-                    errors += parseViewforum(element, database);
-                    break;
+                    return parseViewforum(punElement, database);
                 case "punindex":
-                    errors += parseIndex(element, database);
-                    break;
+                    return parseIndex(punElement, database);
             }
         }
-        return errors;
+        // If this is reached, there's nothing to parse, so there are no errors
+        return new LinkedList<>();
     }
     
     /**
@@ -107,8 +113,9 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static int parseViewtopic(Element element, Database database) {
-        int errors = 0;
+    public static LinkedList<String> parseViewtopic(Element element,
+                                                    Database database) {
+        LinkedList<String> errors = new LinkedList<>();
         int topicId = findContainerId(element);
         
         // Add all posts to database
@@ -118,11 +125,9 @@ public class ParseThread extends Thread {
                 Post post = new Post(postElement, topicId);
                 database.insert(post);
             } catch (IllegalArgumentException e) {
-                errors++;
-                System.err.println("Error in input data: " +
-                                   e.getLocalizedMessage());
+                errors.add("Error in input data: " + e.getLocalizedMessage());
             } catch (SQLException e) {
-                System.err.println("SQL error: " + e.getLocalizedMessage());
+                errors.add("SQL error: " + e.getLocalizedMessage());
             }
         }
         
@@ -137,8 +142,9 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static int parseViewforum(Element element, Database database) {
-        int errors = 0;
+    public static LinkedList<String> parseViewforum(Element element,
+                                                    Database database) {
+        LinkedList<String> errors = new LinkedList<>();
         int forumId = findContainerId(element);
         
         // Add all topics to database
@@ -148,18 +154,14 @@ public class ParseThread extends Thread {
                 // Skip the top row, which only contains headings
                 if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
                     Topic topic = new Topic(topicElement, forumId);
-                    if (!topic.isMoved()) {
+                    if (!topic.isMoved()) { // Moved topics not supported yet
                         database.insert(topic);
-                    } else {
-                        System.out.println("Skipped a moved topic");
                     }
                 }
             } catch (IllegalArgumentException e) {
-                errors++;
-                System.err.println("Error in input data: " +
-                                   e.getLocalizedMessage());
+                errors.add("Error in input data: " + e.getLocalizedMessage());
             } catch (SQLException e) {
-                System.err.println("SQL error: " + e.getLocalizedMessage());
+                errors.add("SQL error: " + e.getLocalizedMessage());
             }
         }
         
@@ -172,10 +174,11 @@ public class ParseThread extends Thread {
      * will be skipped and the returned error count will be increased by one.
      * @param element {@code #punindex} element
      * @param database database to place data into
-     * @return number of errors encountered
+     * @return errors encountered (empty if there were no errors)
      */
-    public static int parseIndex(Element element, Database database) {
-        int errors = 0;
+    public static LinkedList<String> parseIndex(Element element,
+                                                Database database) {
+        LinkedList<String> errors = new LinkedList<>();
         
         // Add all categories, including their forums, to database
         Elements categoryElements = element.getElementsByClass("blocktable");
@@ -185,11 +188,9 @@ public class ParseThread extends Thread {
                 Category category = new Category(categoryElement, position);
                 database.insert(category);
             } catch (IllegalArgumentException e) {
-                errors++;
-                System.err.println("Error in input data: " +
-                                   e.getLocalizedMessage());
+                errors.add("Error in input data: " + e.getLocalizedMessage());
             } catch (SQLException e) {
-                System.err.println("SQL error: " + e.getLocalizedMessage());
+                errors.add("SQL error: " + e.getLocalizedMessage());
             } finally {
                 position++;
             }

@@ -48,9 +48,10 @@ public class PunParse {
              */
             System.out.println("Parsing files...");
             ArrayBlockingQueue<ParseTask> queue = new ArrayBlockingQueue<>(16);
-            ParseThread parseThread = new ParseThread(queue, database);
+            UserInterface ui = new UserInterface(files.size());
+            ParseThread parseThread = new ParseThread(queue, database, ui);
             parseThread.start();
-            filesToParseTasks(files, queue);
+            filesToParseTasks(files, queue, ui);
             parseThread.interrupt();
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
@@ -89,19 +90,17 @@ public class PunParse {
      * @param queue the {@code BlockingQueue} to add {@code ParseTask}s to
      */
     public static void filesToParseTasks(Collection<File> files,
-                                         BlockingQueue<ParseTask> queue) {
-        int currentFile = 0;
-        int totalFiles = files.size();
-        
+                                         BlockingQueue<ParseTask> queue,
+                                         UserInterface ui) {
         for (File file : files) {
-            currentFile++;
             try {
                 byte[] bytes = Files.readAllBytes(file.toPath());
-                ParseTask parseTask = new ParseTask(bytes, currentFile,
-                                                    totalFiles, file.getName());
+                ParseTask parseTask = new ParseTask(bytes, file.getName());
                 queue.put(parseTask);
             } catch (IOException e) {
-                System.err.println("Could not read file: " + file.getName());
+                if (ui != null) {
+                    ui.addToProgress(file.getName(), "Couldn't read file.");
+                }
             } catch (InterruptedException e) {}
         }
     }
