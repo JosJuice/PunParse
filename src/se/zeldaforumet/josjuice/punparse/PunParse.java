@@ -64,7 +64,7 @@ public class PunParse {
      * directory, it will be treated as a directory containing no files.
      * @return a queue of {@code File} objects for all files in the directory
      */
-    public static LinkedList<File> getFilesInDirectory(File directory) {
+    private static LinkedList<File> getFilesInDirectory(File directory) {
         LinkedList<File> result = new LinkedList<>();
         /*
          * Note: listFiles takes several minutes to run if there are many files
@@ -89,7 +89,7 @@ public class PunParse {
      * @param files the files to load
      * @param queue the {@code BlockingQueue} to add {@code ParseTask}s to
      */
-    public static void filesToParseTasks(Collection<File> files,
+    private static void filesToParseTasks(Collection<File> files,
                                          BlockingQueue<ParseTask> queue,
                                          UserInterface ui) {
         for (File file : files) {

@@ -84,8 +84,8 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static LinkedList<String> parseDocument(Document document,
-                                                   Database database) {
+    private static LinkedList<String> parseDocument(Document document,
+                                                    Database database) {
         Element punElement = document.getElementsByClass("pun").first();
         if (punElement != null) {
             switch (punElement.id()) {
@@ -113,8 +113,8 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static LinkedList<String> parseViewtopic(Element element,
-                                                    Database database) {
+    private static LinkedList<String> parseViewtopic(Element element,
+                                                     Database database) {
         LinkedList<String> errors = new LinkedList<>();
         int topicId = findContainerId(element);
         
@@ -142,8 +142,8 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return number of errors encountered
      */
-    public static LinkedList<String> parseViewforum(Element element,
-                                                    Database database) {
+    private static LinkedList<String> parseViewforum(Element element,
+                                                     Database database) {
         LinkedList<String> errors = new LinkedList<>();
         int forumId = findContainerId(element);
         
@@ -176,8 +176,8 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
      */
-    public static LinkedList<String> parseIndex(Element element,
-                                                Database database) {
+    private static LinkedList<String> parseIndex(Element element,
+                                                 Database database) {
         LinkedList<String> errors = new LinkedList<>();
         
         // Add all categories, including their forums, to database
