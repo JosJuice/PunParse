@@ -3,6 +3,7 @@ package se.zeldaforumet.josjuice.punparse;
 import org.jsoup.nodes.Element;
 
 /**
+ * Represents a record in the PunBB 'forums' table. Immutable.
  * @author JosJuice
  */
 public final class Forum {

@@ -1,7 +1,9 @@
 package se.zeldaforumet.josjuice.punparse;
 
 /**
- * Represents a task of parsing that needs to be carried out.
+ * Represents a task of parsing that needs to be carried out. This class is
+ * actually not immutable, so please don't modify the byte array after creating
+ * a {@code ParseTask} object.
  * @author JosJuice
  */
 public final class ParseTask {

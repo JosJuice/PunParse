@@ -4,6 +4,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
+ * Represents a record in the PunBB 'categories' table. Immutable.
  * @author JosJuice
  */
 public final class Category {
