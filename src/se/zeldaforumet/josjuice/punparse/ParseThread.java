@@ -55,7 +55,7 @@ public class ParseThread extends Thread {
 
                     // Get the data we want from the Document
                     LinkedList<String> errors = parseDocument(doc, database);
-                    if (ui != null ) {
+                    if (ui != null) {
                         ui.addToProgress(task.getName(), errors);
                     }
                 } catch (IOException e) {
