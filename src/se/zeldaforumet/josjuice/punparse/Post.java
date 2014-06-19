@@ -69,8 +69,8 @@ public final class Post {
         
         try {
             // Find message text
-            // TODO get BBCode, not just plaintext
-            message = element.getElementsByClass("postmsg").first().text();
+            Element postmsg = element.getElementsByClass("postmsg").first();
+            message = TextParser.parseMessage(postmsg);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get message body " +
                                                "of post " + id, e);

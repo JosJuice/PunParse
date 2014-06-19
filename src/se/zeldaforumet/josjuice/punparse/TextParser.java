@@ -1,10 +1,39 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import org.jsoup.nodes.Element;
+
 /**
  * Contains various static methods for parsing text.
  * @author JosJuice
  */
 public class TextParser {
+    
+    /**
+     * Converts a message in HTML (such as a post or signature) into BBCode.
+     * @param element a {@code .postmsg} or {@code postsignature} element
+     * @return the raw text of the message
+     */
+    public static String parseMessage(Element element) {
+        Element elem = element.clone();
+        
+        // Remove the unneeded hr element at the beginning of signatures
+        if (elem.hasClass("postsignature")) {
+            Element hr = elem.getElementsByTag("hr").first();
+            if (hr != null) {
+                hr.remove();
+            }
+        }
+        
+        // Replace newlines with a temporary private use character
+        final char tempChar = '\uFDD0';
+        final String tempString = String.valueOf(tempChar);
+        for (Element br : elem.getElementsByTag("br")) {
+            br.after(tempString).remove();
+        }
+        
+        // Return the text, inserting newlines
+        return elem.text().replace(tempChar, '\n');
+    }
     
     /**
      * Gets the value of a field in a URL query string.
