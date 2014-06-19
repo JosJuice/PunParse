@@ -14,7 +14,6 @@ public class TextParser {
      * @return the raw text of the message
      */
     public static String parseMessage(Element element) {
-        // TODO more types of BBCode
         Element elem = element.clone();
         
         // Remove the unneeded hr element at the beginning of signatures
@@ -24,6 +23,8 @@ public class TextParser {
                 hr.remove();
             }
         }
+        
+        // TODO more types of BBCode
         
         // Quotes
         for (Element blockquote : elem.getElementsByTag("blockquote")) {
@@ -35,27 +36,26 @@ public class TextParser {
             } else {
                 quoted = "";
             }
-            blockquote.prepend("[quote" + quoted + "]").append("[/quote]");
+            blockquote.prependText("[quote" + quoted + "]");
+            blockquote.appendText("[/quote]");
         }
         
         // Replace images with either [img] BBCode or smilies
         for (Element img : elem.getElementsByTag("img")) {
             String alt = img.attr("alt");
             if (alt.equals(img.attr("src"))) {
-                img.after("[img]" + alt + "[/img]").remove();
+                img.appendText("[img]" + alt + "[/img]");
             } else {
-                img.after(alt).remove();
+                img.appendText(alt);
             }
         }
         
-        // Replace newlines with a temporary non-character
+        // A workaround for converting br tags to newlines
         final char tempChar = '\uFDD0';
         final String tempString = String.valueOf(tempChar);
         for (Element br : elem.getElementsByTag("br")) {
-            br.after(tempString).remove();
+            br.appendText(tempString);
         }
-        
-        // Return the text, inserting newlines
         return elem.text().replace(tempChar, '\n');
     }
     
