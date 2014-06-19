@@ -40,6 +40,12 @@ public class TextParser {
             blockquote.appendText("[/quote]");
         }
         
+        // Links
+        for (Element a : elem.getElementsByTag("a")) {
+            a.prependText("[url=" + a.attr("href") + "]");
+            a.appendText("[/url]");
+        }
+        
         // Replace images with either [img] BBCode or smilies
         for (Element img : elem.getElementsByTag("img")) {
             String alt = img.attr("alt");
