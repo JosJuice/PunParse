@@ -50,8 +50,11 @@ public class TextParser {
         for (Element img : elem.getElementsByTag("img")) {
             String alt = img.attr("alt");
             if (alt.equals(img.attr("src"))) {
+                // It's an image
                 img.appendText("[img]" + alt + "[/img]");
             } else {
+                // It's a smiley
+                // TODO in vanilla PunBB this is the filename, not smiley text
                 img.appendText(alt);
             }
         }
