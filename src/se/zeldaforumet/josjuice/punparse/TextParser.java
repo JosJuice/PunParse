@@ -14,6 +14,7 @@ public class TextParser {
      * @return the raw text of the message
      */
     public static String parseMessage(Element element) {
+        // TODO more types of BBCode
         Element elem = element.clone();
         
         // Remove the unneeded hr element at the beginning of signatures
@@ -24,7 +25,17 @@ public class TextParser {
             }
         }
         
-        // Replace newlines with a temporary private use character
+        // Replace images with either [img] BBCode or smilies
+        for (Element img : elem.getElementsByTag("img")) {
+            String alt = img.attr("alt");
+            if (alt.equals(img.attr("src"))) {
+                img.after("[img]" + alt + "[/img]").remove();
+            } else {
+                img.after(alt).remove();
+            }
+        }
+        
+        // Replace newlines with a temporary non-character
         final char tempChar = '\uFDD0';
         final String tempString = String.valueOf(tempChar);
         for (Element br : elem.getElementsByTag("br")) {
@@ -33,6 +44,19 @@ public class TextParser {
         
         // Return the text, inserting newlines
         return elem.text().replace(tempChar, '\n');
+    }
+    
+    /**
+     * @param element a {@code .postmsg} or {@code postsignature} element
+     * @return {@code true} if there is at least one smiley in the element
+     */
+    public static boolean containsSmilies(Element element) {
+        for (Element img : element.getElementsByTag("img")) {
+            if (!img.attr("alt").equals(img.attr("src"))) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

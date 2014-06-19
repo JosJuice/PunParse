@@ -71,13 +71,12 @@ public final class Post {
             // Find message text
             Element postmsg = element.getElementsByClass("postmsg").first();
             message = TextParser.parseMessage(postmsg);
+            // Set "hide smilies" if there are no smilies to display
+            hideSmilies = !TextParser.containsSmilies(postmsg);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get message body " +
                                                "of post " + id, e);
         }
-        
-        // TODO check if smilies need to be displayed
-        hideSmilies = true;
         
         // TODO find time posted
         posted = id;
