@@ -25,6 +25,19 @@ public class TextParser {
             }
         }
         
+        // Quotes
+        for (Element blockquote : elem.getElementsByTag("blockquote")) {
+            Element h4 = blockquote.getElementsByTag("h4").first();
+            String quoted;
+            if (h4 != null) {
+                quoted = "=" + h4.text();    // TODO get rid of " wrote:"
+                h4.remove();
+            } else {
+                quoted = "";
+            }
+            blockquote.prepend("[quote" + quoted + "]").append("[/quote]");
+        }
+        
         // Replace images with either [img] BBCode or smilies
         for (Element img : elem.getElementsByTag("img")) {
             String alt = img.attr("alt");
