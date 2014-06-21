@@ -29,14 +29,13 @@ public class TextParser {
         // Quotes
         for (Element blockquote : elem.getElementsByTag("blockquote")) {
             Element h4 = blockquote.getElementsByTag("h4").first();
-            String quoted;
             if (h4 != null) {
-                quoted = "=" + h4.text();    // TODO get rid of " wrote:"
+                // TODO get rid of " wrote:"
+                blockquote.prependText("[quote=" + h4.text() + "]");
                 h4.remove();
             } else {
-                quoted = "";
+                blockquote.prependText("[quote]");
             }
-            blockquote.prependText("[quote" + quoted + "]");
             blockquote.appendText("[/quote]");
         }
         
@@ -48,14 +47,13 @@ public class TextParser {
         
         // Replace images with either [img] BBCode or smilies
         for (Element img : elem.getElementsByTag("img")) {
-            String alt = img.attr("alt");
-            if (alt.equals(img.attr("src"))) {
+            if (img.hasClass("postimg")) {
                 // It's an image
-                img.appendText("[img]" + alt + "[/img]");
+                img.appendText("[img]" + img.attr("src") + "[/img]");
             } else {
                 // It's a smiley
                 // TODO in vanilla PunBB this is the filename, not smiley text
-                img.appendText(alt);
+                img.appendText(img.attr("alt"));
             }
         }
         
