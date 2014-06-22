@@ -72,7 +72,7 @@ public class TextParser {
      */
     public static boolean containsSmilies(Element element) {
         for (Element img : element.getElementsByTag("img")) {
-            if (!img.attr("alt").equals(img.attr("src"))) {
+            if (!img.hasClass("postimg")) {
                 return true;
             }
         }

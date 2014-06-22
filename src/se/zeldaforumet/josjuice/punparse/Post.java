@@ -70,9 +70,10 @@ public final class Post {
         try {
             // Find message text
             Element postmsg = element.getElementsByClass("postmsg").first();
-            message = TextParser.parseMessage(postmsg);
-            // Set "hide smilies" if there are no smilies to display
+            // Set "hide smilies" if there are no smilies in the post
             hideSmilies = !TextParser.containsSmilies(postmsg);
+            // Parse message text to BBCode
+            message = TextParser.parseMessage(postmsg);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get message body " +
                                                "of post " + id, e);
