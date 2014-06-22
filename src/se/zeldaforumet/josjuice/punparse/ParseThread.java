@@ -82,7 +82,7 @@ public class ParseThread extends Thread {
      * it will be skipped and the returned error count will be increased by one.
      * @param document HTML document to parse
      * @param database database to place data into
-     * @return number of errors encountered
+     * @return errors encountered (empty if there were no errors)
      */
     private static LinkedList<String> parseDocument(Document document,
                                                     Database database) {
@@ -111,7 +111,7 @@ public class ParseThread extends Thread {
      * will be skipped and the returned error count will be increased by one.
      * @param element {@code #punviewtopic} element
      * @param database database to place data into
-     * @return number of errors encountered
+     * @return errors encountered (empty if there were no errors)
      */
     private static LinkedList<String> parseViewtopic(Element element,
                                                      Database database) {
@@ -140,7 +140,7 @@ public class ParseThread extends Thread {
      * will be skipped and the returned error count will be increased by one.
      * @param element {@code #punviewforum} element
      * @param database database to place data into
-     * @return number of errors encountered
+     * @return errors encountered (empty if there were no errors)
      */
     private static LinkedList<String> parseViewforum(Element element,
                                                      Database database) {
