@@ -10,7 +10,7 @@ an SQL database. Currently, only MySQL is supported. Support for
 PostgreSQL and SQLite is under development. However, PostgreSQL has not
 been tested, and there is currently a problem; normally, nothing happens
 when PunParse tries to create a record with a primary key that already
-ixists, but with PostgreSQL, an error will occur. One case where this
+exists, but with PostgreSQL, an error will occur. One case where this
 happens is when one record (for instance, a post) is present in two HTML
 files.
 
