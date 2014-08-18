@@ -1,6 +1,9 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import java.util.Collection;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 
 /**
  * Contains various static methods for parsing text.
@@ -9,61 +12,114 @@ import org.jsoup.nodes.Element;
 public class TextParser {
     
     /**
-     * Converts a message in HTML (such as a post or signature) into BBCode.
+     * Converts a message (such as a post or signature) from HTML to BBCode.
      * @param element a {@code .postmsg} or {@code postsignature} element
      * @return the raw text of the message
      */
     public static String parseMessage(Element element) {
-        Element elem = element.clone();
-        
-        // Remove the unneeded hr element at the beginning of signatures
-        if (elem.hasClass("postsignature")) {
-            Element hr = elem.getElementsByTag("hr").first();
-            if (hr != null) {
-                hr.remove();
-            }
-        }
-        
+        return parseMessage(new StringBuilder(), element).toString();
+    }
+    
+    /**
+     * Converts a message or a part of a message from HTML to BBCode.
+     * @param sb a StringBuilder to add the converted text to
+     * @param elem a {@code .postmsg} or {@code postsignature} element,
+     * or a part of one
+     * @return the StringBuilder that was used as a parameter
+     */
+    private static StringBuilder parseMessage(StringBuilder sb, Element elem) {
         // TODO more types of BBCode
-        
-        // Quotes
-        for (Element blockquote : elem.getElementsByTag("blockquote")) {
-            Element h4 = blockquote.getElementsByTag("h4").first();
-            if (h4 != null) {
-                // TODO get rid of " wrote:"
-                blockquote.prependText("[quote=" + h4.text() + "]");
-                h4.remove();
-            } else {
-                blockquote.prependText("[quote]");
+        switch (elem.tagName()) {
+            case "a":
+                sb.append("[url=").append(elem.attr("href")).append("]");
+                parseMessage(sb, elem.childNodes());
+                sb.append("[/url]");
+                break;
+            case "b":
+                sb.append("[b]");
+                parseMessage(sb, elem.childNodes());
+                sb.append("[/b]");
+                break;
+            case "blockquote":
+                String quoteAuthor = null;
+                Element incqbox = elem.children().first();
+                if (incqbox != null) {
+                    Element h4 = incqbox.children().first();
+                    if (h4 != null) {
+                        quoteAuthor = h4.text();
+                    }
+                }
+                sb.append("[quote");
+                if (quoteAuthor != null) {
+                    sb.append("=");
+                    sb.append(quoteAuthor);     // TODO get rid of " wrote:"
+                }
+                sb.append("]");
+                parseMessage(sb, elem.childNodes());
+                sb.append("[/quote]");
+                break;
+            case "br":
+                sb.append('\n');
+                break;
+            case "div":
+                if (elem.hasClass("codebox")) {
+                    sb.append("[code]");
+                    parseMessage(sb, elem.childNodes());
+                    sb.append("[/code]");
+                } else {
+                    parseMessage(sb, elem.childNodes());
+                }
+                break;
+            case "h4":
+                // Handled by case "blockquote"
+                break;
+            case "i":
+                sb.append("[i]");
+                parseMessage(sb, elem.childNodes());
+                sb.append("[/i]");
+                break;
+            case "img":
+                if (elem.hasClass("postimg")) { // External image
+                    sb.append("[img]");
+                    sb.append(elem.attr("src"));
+                    sb.append("[/img]");
+                } else { // Smiley
+                    // TODO in vanilla PunBB this is a filename, not smiley text
+                    sb.append(elem.attr("alt"));
+                }
+                break;
+            case "span":
+                if (elem.hasClass("bbu")) {
+                    sb.append("[u]");
+                    parseMessage(sb, elem.childNodes());
+                    sb.append("[/u]");
+                    break;
+                } else {
+                    parseMessage(sb, elem.childNodes());
+                }
+            default:
+                parseMessage(sb, elem.childNodes());
+                break;
+        }
+        return sb;
+    }
+    
+    /**
+     * Converts parts of a message from HTML to BBCode.
+     * @param sb a StringBuilder to add the converted text to
+     * @param nodes parts of {@code .postmsg} or {@code postsignature} elements
+     * @return the StringBuilder that was used as a parameter
+     */
+    private static StringBuilder parseMessage(StringBuilder sb,
+                                              Collection<Node> nodes) {
+        for (Node node : nodes) {
+            if (node instanceof TextNode) {
+                sb.append(((TextNode) node).text());
+            } else if (node instanceof Element) {
+                parseMessage(sb, (Element) node);
             }
-            blockquote.appendText("[/quote]");
         }
-        
-        // Links
-        for (Element a : elem.getElementsByTag("a")) {
-            a.prependText("[url=" + a.attr("href") + "]");
-            a.appendText("[/url]");
-        }
-        
-        // Replace images with either [img] BBCode or smilies
-        for (Element img : elem.getElementsByTag("img")) {
-            if (img.hasClass("postimg")) {
-                // It's an image
-                img.appendText("[img]" + img.attr("src") + "[/img]");
-            } else {
-                // It's a smiley
-                // TODO in vanilla PunBB this is the filename, not smiley text
-                img.appendText(img.attr("alt"));
-            }
-        }
-        
-        // A workaround for converting br tags to newlines
-        final char tempChar = '\uFDD0';
-        final String tempString = String.valueOf(tempChar);
-        for (Element br : elem.getElementsByTag("br")) {
-            br.appendText(tempString);
-        }
-        return elem.text().replace(tempChar, '\n');
+        return sb;
     }
     
     /**
