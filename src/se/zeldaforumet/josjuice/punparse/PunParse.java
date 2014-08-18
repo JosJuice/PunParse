@@ -3,10 +3,9 @@ package se.zeldaforumet.josjuice.punparse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -39,7 +38,7 @@ public class PunParse {
             
             System.out.println("Finding files to parse...");
             File directory = new File(args[0]);
-            LinkedList<File> files = getFilesInDirectory(directory);
+            ArrayList<File> files = getFilesInDirectory(directory);
             
             /*
              * 16 is just an arbitrary size for the queue. It can be adjusted to
@@ -64,13 +63,13 @@ public class PunParse {
      * directory, it will be treated as a directory containing no files.
      * @return a queue of {@code File} objects for all files in the directory
      */
-    private static LinkedList<File> getFilesInDirectory(File directory) {
-        LinkedList<File> result = new LinkedList<>();
+    private static ArrayList<File> getFilesInDirectory(File directory) {
         /*
          * Note: listFiles takes several minutes to run if there are many files
          * (300000 or so). Is it like this on OSes other than Windows too?
          */
         File[] files = directory.listFiles();
+        ArrayList<File> result = new ArrayList<>(files.length);
         for (File file : files) {
             if (file.isDirectory()) {
                 result.addAll(getFilesInDirectory(file));
@@ -90,8 +89,7 @@ public class PunParse {
      * @param queue the {@code BlockingQueue} to add {@code ParseTask}s to
      */
     private static void filesToParseTasks(Collection<File> files,
-                                         BlockingQueue<ParseTask> queue,
-                                         UserInterface ui) {
+            BlockingQueue<ParseTask> queue, UserInterface ui) {
         for (File file : files) {
             try {
                 byte[] bytes = Files.readAllBytes(file.toPath());

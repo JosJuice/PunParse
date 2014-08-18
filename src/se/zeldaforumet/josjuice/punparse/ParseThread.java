@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -54,7 +54,7 @@ public class ParseThread extends Thread {
                     Document doc = Jsoup.parse(is, null, "");
 
                     // Get the data we want from the Document
-                    LinkedList<String> errors = parseDocument(doc, database);
+                    ArrayList<String> errors = parseDocument(doc, database);
                     if (ui != null) {
                         ui.addToProgress(task.getName(), errors);
                     }
@@ -84,8 +84,8 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
      */
-    private static LinkedList<String> parseDocument(Document document,
-                                                    Database database) {
+    private static ArrayList<String> parseDocument(Document document,
+                                                   Database database) {
         Element punElement = document.getElementsByClass("pun").first();
         if (punElement != null) {
             switch (punElement.id()) {
@@ -102,7 +102,7 @@ public class ParseThread extends Thread {
             }
         }
         // If this is reached, there's nothing to parse, so there are no errors
-        return new LinkedList<>();
+        return new ArrayList<>();
     }
     
     /**
@@ -113,9 +113,9 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
      */
-    private static LinkedList<String> parseViewtopic(Element element,
+    private static ArrayList<String> parseViewtopic(Element element,
                                                      Database database) {
-        LinkedList<String> errors = new LinkedList<>();
+        ArrayList<String> errors = new ArrayList<>();
         int topicId = findContainerId(element);
         
         // Add all posts to database
@@ -142,9 +142,9 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
      */
-    private static LinkedList<String> parseViewforum(Element element,
-                                                     Database database) {
-        LinkedList<String> errors = new LinkedList<>();
+    private static ArrayList<String> parseViewforum(Element element,
+                                                    Database database) {
+        ArrayList<String> errors = new ArrayList<>();
         int forumId = findContainerId(element);
         
         // Add all topics to database
@@ -176,9 +176,9 @@ public class ParseThread extends Thread {
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
      */
-    private static LinkedList<String> parseIndex(Element element,
-                                                 Database database) {
-        LinkedList<String> errors = new LinkedList<>();
+    private static ArrayList<String> parseIndex(Element element,
+                                                Database database) {
+        ArrayList<String> errors = new ArrayList<>();
         
         // Add all categories, including their forums, to database
         Elements categoryElements = element.getElementsByClass("blocktable");
