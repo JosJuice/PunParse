@@ -1,13 +1,11 @@
 package se.zeldaforumet.josjuice.punparse;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Parses data from PunBB HTML output to an SQL database.
@@ -29,29 +27,32 @@ public class PunParse {
         
         // Do the work
         System.out.println("Connecting to SQL database...");
-        try {
-            Database database = new Database(args[1], null);
+        try (Database database = new Database(args[1], null)) {
             if (!append) {
                 System.out.println("Creating tables...");
                 database.createTables();
             }
-            
+
             System.out.println("Finding files to parse...");
             File directory = new File(args[0]);
             ArrayList<File> files = getFilesInDirectory(directory);
-            
-            /*
-             * 16 is just an arbitrary size for the queue. It can be adjusted to
-             * something else without any trouble. Just don't make it way too
-             * large - we don't want to be able to fill RAM with documents.
-             */
+
             System.out.println("Parsing files...");
-            ArrayBlockingQueue<ParseTask> queue = new ArrayBlockingQueue<>(16);
             UserInterface ui = new UserInterface(files.size());
-            ParseThread parseThread = new ParseThread(queue, database, ui);
-            parseThread.start();
-            filesToParseTasks(files, queue, ui);
-            parseThread.interrupt();
+            int threads = Runtime.getRuntime().availableProcessors() + 1;
+            ExecutorService executor = Executors.newFixedThreadPool(threads);
+            for (File file : files) {
+                executor.execute(new ParseTask(file, database, ui));
+            }
+
+            // Wait for threads to finish before closing database connection
+            executor.shutdown();
+            boolean isDone = false;
+            while (!isDone) {
+                try {
+                    isDone = executor.awaitTermination(1, TimeUnit.DAYS);
+                } catch (InterruptedException e) {}
+            }
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
         }
@@ -61,7 +62,7 @@ public class PunParse {
      * Finds all files in a folder, including subfolders.
      * @param directory The directory to find files in. If this is not a
      * directory, it will be treated as a directory containing no files.
-     * @return a queue of {@code File} objects for all files in the directory
+     * @return a queue of {@link File} objects for all files in the directory
      */
     private static ArrayList<File> getFilesInDirectory(File directory) {
         /*
@@ -78,29 +79,6 @@ public class PunParse {
             }
         }
         return result;
-    }
-    
-    /**
-     * Loads files to create {@link ParseTask}s that are added to a queue using
-     * blocking operations. This method will hang unless there is a thread
-     * emptying the queue while it is being filled, or unless there are fewer
-     * files than there is empty space in the queue.
-     * @param files the files to load
-     * @param queue the {@code BlockingQueue} to add {@code ParseTask}s to
-     */
-    private static void filesToParseTasks(Collection<File> files,
-            BlockingQueue<ParseTask> queue, UserInterface ui) {
-        for (File file : files) {
-            try {
-                byte[] bytes = Files.readAllBytes(file.toPath());
-                ParseTask parseTask = new ParseTask(bytes, file.getName());
-                queue.put(parseTask);
-            } catch (IOException e) {
-                if (ui != null) {
-                    ui.addToProgress(file.getName(), "Couldn't read file.");
-                }
-            } catch (InterruptedException e) {}
-        }
     }
     
 }
