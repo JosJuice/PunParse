@@ -51,7 +51,7 @@ public final class Post {
             // Check if posted by guest
             Element posterLink = posterElement.getElementsByTag("a").first();
             if (posterLink == null) {
-                posterId = User.GUEST_ID;
+                posterId = 1;   // The ID 1 is used by all guests
             } else {
                 // Get poster ID from profile URL
                 try {
