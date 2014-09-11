@@ -37,21 +37,28 @@ public class PunParse {
             File directory = new File(args[0]);
             ArrayList<File> files = getFilesInDirectory(directory);
 
-            System.out.println("Parsing files...");
-            UserInterface ui = new UserInterface(files.size());
-            int threads = Runtime.getRuntime().availableProcessors() + 1;
-            ExecutorService executor = Executors.newFixedThreadPool(threads);
-            for (File file : files) {
-                executor.execute(new ParseTask(file, database, ui));
-            }
+            if (files.size() <= 0) {
+                System.out.println("No files were found.");
+            } else {
+                System.out.println("Parsing files...");
+                UserInterface ui = new UserInterface(files.size());
+                int threads = Runtime.getRuntime().availableProcessors() + 1;
+                if (threads > files.size()) {
+                    threads = files.size();
+                }
+                ExecutorService es = Executors.newFixedThreadPool(threads);
+                for (File file : files) {
+                    es.execute(new ParseTask(file, database, ui));
+                }
 
-            // Wait for threads to finish before closing database connection
-            executor.shutdown();
-            boolean isDone = false;
-            while (!isDone) {
-                try {
-                    isDone = executor.awaitTermination(1, TimeUnit.DAYS);
-                } catch (InterruptedException e) {}
+                // Wait for threads to finish before closing database connection
+                es.shutdown();
+                boolean isDone = false;
+                while (!isDone) {
+                    try {
+                        isDone = es.awaitTermination(1, TimeUnit.DAYS);
+                    } catch (InterruptedException e) {}
+                }
             }
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
@@ -65,10 +72,7 @@ public class PunParse {
      * @return a queue of {@link File} objects for all files in the directory
      */
     private static ArrayList<File> getFilesInDirectory(File directory) {
-        /*
-         * Note: listFiles takes several minutes to run if there are many files
-         * (300000 or so). Is it like this on OSes other than Windows too?
-         */
+        // Note: listFiles takes minutes to run if there are 100000s of files
         File[] files = directory.listFiles();
         ArrayList<File> result = new ArrayList<>(files.length);
         for (File file : files) {

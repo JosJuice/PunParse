@@ -57,7 +57,6 @@ public final class ParseTask implements Runnable {
      * @return errors encountered (empty if there were no errors)
      */
     private ArrayList<String> parseDocument(Document document) {
-        // TODO don't look through every element (don't use getElementsByClass)
         Element punElement = document.getElementsByClass("pun").first();
         if (punElement != null) {
             switch (punElement.id()) {
@@ -168,8 +167,7 @@ public final class ParseTask implements Runnable {
     /**
      * Attempts to find the ID of a topic or forum based on page links. If there
      * are no page links, this method will fail and return 0.
-     * @param element An HTML element containing at least one {@code .pagelink}
-     * element
+     * @param element element containing at least one {@code .pagelink} element
      * @return the ID indicated in the page links, or 0 when failing
      */
     private static int findContainerId(Element element) {
