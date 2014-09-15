@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
  * @author JosJuice
  */
 public final class Category {
+    
     // All of the following variables correspond to database columns.
     private final int id;
     private final String name;
