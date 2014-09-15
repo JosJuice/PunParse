@@ -140,12 +140,10 @@ public class Database implements AutoCloseable {
     /**
      * Inserts a forum into the database.
      * @param forum the forum to insert
-     * @param displayPosition the location of the forum within its category
-     * @param categoryId the ID of the category this forum is in
      * @throws SQLException if something goes wrong on the SQL side
      * @throws IllegalStateException if used after calling {@link close()}
      */
-    private synchronized void insert(Forum forum) throws SQLException {
+    public synchronized void insert(Forum forum) throws SQLException {
         if (isClosed) {
             throw new IllegalStateException("Closed databases cannot be used.");
         }
@@ -174,7 +172,7 @@ public class Database implements AutoCloseable {
     }
     
     /**
-     * Inserts a category into the database, including the forums it contains.
+     * Inserts a category into the database.
      * @param category the category to insert
      * @throws SQLException if something goes wrong on the SQL side
      * @throws IllegalStateException if used after calling {@link close()}
@@ -187,11 +185,6 @@ public class Database implements AutoCloseable {
         insertCategory.setString(1, category.getName());
         insertCategory.setInt(2, category.getDisplayPosition());
         insertCategory.executeUpdate();
-        
-        Forum[] forums = category.getForums();
-        for (Forum forum : forums) {
-            insert(forum);
-        }
     }
     
     /**

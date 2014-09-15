@@ -50,8 +50,8 @@ public final class ParseTask implements Runnable {
     
     /**
      * Parses a PunBB HTML document. The data will be placed in a database.
-     * If parsing an individual piece of data (for instance, a post) fails,
-     * it will be skipped and the returned error count will be increased by one.
+     * If parsing an item (for instance, a post) fails, it will be skipped and a
+     * string describing the error will be added to the return value.
      * @param document HTML document to parse
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
@@ -78,8 +78,8 @@ public final class ParseTask implements Runnable {
     
     /**
      * Parses a {@code #punviewtopic} element. The data will be placed in a
-     * database. If parsing a piece of data (for instance, a post) fails, it
-     * will be skipped and the returned error count will be increased by one.
+     * database. If parsing a post fails, it will be skipped and a string
+     * describing the error will be added to the return value.
      * @param element {@code #punviewtopic} element
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
@@ -105,8 +105,8 @@ public final class ParseTask implements Runnable {
     
     /**
      * Parses a {@code #punviewforum} element. The data will be placed in a
-     * database. If parsing a piece of data (for instance, a topic) fails, it
-     * will be skipped and the returned error count will be increased by one.
+     * database. If parsing a topic fails, it will be skipped and a string
+     * describing the error will be added to the return value.
      * @param element {@code #punviewforum} element
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
@@ -137,8 +137,8 @@ public final class ParseTask implements Runnable {
     
     /**
      * Parses a {@code #punindex} element. The data will be placed in a
-     * database. If parsing any part of a category fails, the entire category
-     * will be skipped and the returned error count will be increased by one.
+     * database. If parsing a category or forum fails, it will be skipped and a
+     * string describing the error will be added to the return value.
      * @param element {@code #punindex} element
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
@@ -146,20 +146,41 @@ public final class ParseTask implements Runnable {
     private ArrayList<String> parseIndex(Element element) {
         ArrayList<String> errors = new ArrayList<>();
         
-        // Add all categories, including their forums, to database
+        // Add all categories to database
         Elements categoryElements = element.getElementsByClass("blocktable");
-        int position = 0;
+        int categoryPosition = 0;
         for (Element categoryElement : categoryElements) {
             try {
-                Category category = new Category(categoryElement, position);
+                Category category = new Category(categoryElement,
+                                                 categoryPosition);
                 database.insert(category);
+                
+                // Add all forums to database
+                Elements forumElements =
+                        categoryElement.getElementsByTag("tr");
+                int forumPosition = -1;
+                for (Element forumElement : forumElements) {
+                    // This if skips the first row, which only has headings
+                    if (forumPosition >= 0) {
+                        try {
+                            Forum forum = new Forum(forumElement, forumPosition,
+                                                    category.getId());
+                            database.insert(forum);
+                        } catch (IllegalArgumentException e) {
+                            errors.add("Error in input data: " +
+                                       e.getLocalizedMessage());
+                        } catch (SQLException e) {
+                            errors.add("SQL error: " + e.getLocalizedMessage());
+                        }
+                    }
+                    forumPosition++;
+                }
             } catch (IllegalArgumentException e) {
                 errors.add("Error in input data: " + e.getLocalizedMessage());
             } catch (SQLException e) {
                 errors.add("SQL error: " + e.getLocalizedMessage());
-            } finally {
-                position++;
             }
+            categoryPosition++;
         }
         return errors;
     }

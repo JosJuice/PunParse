@@ -8,9 +8,6 @@ import org.jsoup.select.Elements;
  * @author JosJuice
  */
 public final class Category {
-    
-    private final Forum[] forums;
-    
     // All of the following variables correspond to database columns.
     private final int id;
     private final String name;
@@ -36,28 +33,6 @@ public final class Category {
         
         // TODO this isn't the real ID. Might cause problems with existing data
         id = displayPosition + 1;
-        
-        // Parse the forums that are in this category
-        try {
-            Elements forumElements = element.getElementsByTag("tr");
-            forumElements.remove(0);    // The first row only contains headings
-            forums = new Forum[forumElements.size()];
-            int index = 0;
-            for (Element forumElement : forumElements) {
-                forums[index] = new Forum(forumElement, index, id);
-                index++;
-            }
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't get forums in " +
-                                               "category \"" + name + "\"", e);
-        }
-    }
-    
-    /**
-     * @return All forums that are contained in this {@code Category}
-     */
-    public Forum[] getForums() {
-        return forums;
     }
     
     /**
