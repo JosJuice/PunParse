@@ -20,6 +20,7 @@ public class Database implements AutoCloseable {
     private final String prefix;
     private boolean isClosed = false;
     
+    private final PreparedStatement insertUser;
     private final PreparedStatement insertPost;
     private final PreparedStatement insertTopic;
     private final PreparedStatement insertForum;
@@ -46,6 +47,9 @@ public class Database implements AutoCloseable {
         connection = DriverManager.getConnection("jdbc:" + url);
         type = Type.MYSQL;          // TODO detect database type
         
+        insertUser = connection.prepareStatement("INSERT " + type.ignore +
+                "INTO " + prefix + "users (id, username, title, use_avatar) " +
+                "VALUES(?, ?, ?, ?);");
         insertPost = connection.prepareStatement("INSERT " + type.ignore +
                 "INTO " + prefix + "posts (id, poster, poster_id, message, " +
                 "hide_smilies, posted, edited, edited_by, topic_id) " +
@@ -76,6 +80,24 @@ public class Database implements AutoCloseable {
         insertForum.close();
         insertRedirectForum.close();
         insertCategory.close();
+    }
+    
+    /**
+     * Inserts a user into the database.
+     * @param user the user to insert
+     * @throws SQLException if something goes wrong on the SQL side
+     * @throws IllegalStateException if used after calling {@link close()}
+     */
+    public synchronized void insert(User user) throws SQLException {
+        if (isClosed) {
+            throw new IllegalStateException("Closed databases cannot be used.");
+        }
+        
+        insertUser.setInt(1, user.getId());
+        insertUser.setString(2, user.getUsername());
+        insertUser.setString(3, user.getTitle());
+        insertUser.setBoolean(4, user.getHasAvatar());
+        insertUser.executeUpdate();
     }
     
     /**

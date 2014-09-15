@@ -63,9 +63,6 @@ public final class ParseTask implements Runnable {
                 case "punviewpoll":
                 case "punviewtopic":
                     return parseViewtopic(punElement);
-                case "punprofile":
-                    // TODO
-                    break;
                 case "punviewforum":
                     return parseViewforum(punElement);
                 case "punindex":
@@ -78,8 +75,8 @@ public final class ParseTask implements Runnable {
     
     /**
      * Parses a {@code #punviewtopic} element. The data will be placed in a
-     * database. If parsing a post fails, it will be skipped and a string
-     * describing the error will be added to the return value.
+     * database. If parsing a post or a user fails, it will be skipped and a
+     * string describing the error will be added to the return value.
      * @param element {@code #punviewtopic} element
      * @param database database to place data into
      * @return errors encountered (empty if there were no errors)
@@ -88,12 +85,21 @@ public final class ParseTask implements Runnable {
         ArrayList<String> errors = new ArrayList<>();
         int topicId = findContainerId(element);
         
-        // Add all posts to database
+        // Add all posts and their user information to database
         Elements postElements = element.getElementsByClass("blockpost");
         for (Element postElement : postElements) {
             try {
                 Post post = new Post(postElement, topicId);
                 database.insert(post);
+            } catch (IllegalArgumentException e) {
+                errors.add("Error in input data: " + e.getLocalizedMessage());
+            } catch (SQLException e) {
+                errors.add("SQL error: " + e.getLocalizedMessage());
+            }
+            try {
+                User user = new User(postElement.getElementsByClass("postleft").
+                                     first());
+                database.insert(user);
             } catch (IllegalArgumentException e) {
                 errors.add("Error in input data: " + e.getLocalizedMessage());
             } catch (SQLException e) {
