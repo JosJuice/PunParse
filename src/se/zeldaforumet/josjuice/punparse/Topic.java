@@ -133,8 +133,8 @@ public final class Topic {
      * @throws NullPointerException if the poster cannot be found
      * @throws IndexOutOfBoundsException if no non-breaking space was found
      */
-    private String getPoster(Element element) throws NullPointerException,
-                                                     IndexOutOfBoundsException {
+    private static String getPoster(Element element)
+            throws NullPointerException, IndexOutOfBoundsException {
         String poster;
         String delimiter;
         
