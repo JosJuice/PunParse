@@ -103,10 +103,12 @@ public class Database implements AutoCloseable {
     /**
      * Inserts a post into the database.
      * @param post the post to insert
+     * @param topicId ID of the topic containing this post.
      * @throws SQLException if something goes wrong on the SQL side
      * @throws IllegalStateException if used after calling {@link close()}
      */
-    public synchronized void insert(Post post) throws SQLException {
+    public synchronized void insert(Post post, int topicId)
+            throws SQLException {
         if (isClosed) {
             throw new IllegalStateException("Closed databases cannot be used.");
         }
@@ -124,7 +126,7 @@ public class Database implements AutoCloseable {
             insertPost.setNull(7, Types.INTEGER);
             insertPost.setNull(8, Types.VARCHAR);
         }
-        insertPost.setInt(9, post.getTopicId());
+        insertPost.setInt(9, topicId);
         insertPost.executeUpdate();
     }
     

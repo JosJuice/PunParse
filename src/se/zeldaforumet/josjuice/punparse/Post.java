@@ -19,16 +19,14 @@ public final class Post {
     private final long posted;
     private final long edited;
     private final String editedBy;
-    private final int topicId;
     
     /**
      * Constructs a {@code Post}.
      * @param element HTML element representing a post.
      * The element should always have the {@code .blockpost} class.
-     * @param topicId ID of the topic containing this post.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Post(Element element, int topicId) throws IllegalArgumentException {
+    public Post(Element element) throws IllegalArgumentException {
         try {
             // Find post ID
             String idText = element.id();
@@ -86,9 +84,6 @@ public final class Post {
         isEdited = false;
         edited = 0;
         editedBy = null;
-        
-        // Set topic ID
-        this.topicId = topicId;
     }
     
     /**
@@ -155,13 +150,6 @@ public final class Post {
      */
     public String getEditedBy() {
         return editedBy;
-    }
-    
-    /**
-     * @return ID of the topic containing this post
-     */
-    public int getTopicId() {
-        return topicId;
     }
     
 }

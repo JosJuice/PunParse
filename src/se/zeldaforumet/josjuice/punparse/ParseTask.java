@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,17 +19,22 @@ public final class ParseTask implements Runnable {
     private final File file;
     private final Database database;
     private final UserInterface ui;
+    private final Map<Integer, Integer> postTopicMap;
     
     /**
      * Creates a {@code ParseThread}.
      * @param file The {@code File} that is to be parsed.
      * @param database A {@link Database} to send data to.
      * @param ui A {@link UserInterface} for progress display, or {@code null}.
+     * @param postTopicMap Used to map posts to topics if the topic ID cannot
+     * be found using page links.
      */
-    public ParseTask(File file, Database database, UserInterface ui) {
+    public ParseTask(File file, Database database, UserInterface ui,
+                     Map<Integer, Integer> postTopicMap) {
         this.file = file;
         this.database = database;
         this.ui = ui;
+        this.postTopicMap = postTopicMap;
     }
     
     /**
@@ -83,18 +89,15 @@ public final class ParseTask implements Runnable {
      */
     private ArrayList<String> parseViewtopic(Element element) {
         ArrayList<String> errors = new ArrayList<>();
-        int topicId = findContainerId(element);
         
-        // Add all posts and their user information to database
+        // Store all posts in list, add all user information to database
         Elements postElements = element.getElementsByClass("blockpost");
+        ArrayList<Post> posts = new ArrayList<>();
         for (Element postElement : postElements) {
             try {
-                Post post = new Post(postElement, topicId);
-                database.insert(post);
+                posts.add(new Post(postElement));
             } catch (IllegalArgumentException e) {
                 errors.add("Error in input data: " + e.getLocalizedMessage());
-            } catch (SQLException e) {
-                errors.add("SQL error: " + e.getLocalizedMessage());
             }
             try {
                 User user = new User(postElement.getElementsByClass("postleft").
@@ -106,6 +109,29 @@ public final class ParseTask implements Runnable {
                 errors.add("SQL error: " + e.getLocalizedMessage());
             }
         }
+        
+        // Find topic ID
+        int topicId = findContainerId(element);
+        // TODO handle the case of not finding the topic ID
+        if (topicId == 0) {
+            for (int i = posts.size() - 1; i >= 0; i--) {
+                Integer possibleId = postTopicMap.get(posts.get(i).getId());
+                if (possibleId != null) {
+                    topicId = possibleId;
+                    break;
+                }
+            }
+        }
+        
+        // Add the previously parsed posts to database
+        for (Post post : posts) {
+            try {
+                database.insert(post, topicId);
+            } catch (SQLException e) {
+                errors.add("SQL error: " + e.getLocalizedMessage());
+            }
+        }
+        
         return errors;
     }
     
@@ -129,6 +155,7 @@ public final class ParseTask implements Runnable {
                 if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
                     Topic topic = new Topic(topicElement, forumId);
                     if (!topic.isMoved()) { // Moved topics not supported yet
+                        postTopicMap.put(topic.getLastPostId(), topic.getId());
                         database.insert(topic);
                     }
                 }
