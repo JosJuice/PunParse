@@ -3,6 +3,8 @@ package se.zeldaforumet.josjuice.punparse;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,7 +37,8 @@ public class PunParse {
             }
             
             // TODO make this work properly with appending
-            TreeMap<Integer, Integer> postTopicMap = new TreeMap<>();
+            SortedMap<Integer, Integer> postTopicMap = Collections.
+                    synchronizedSortedMap(new TreeMap<Integer, Integer>());
 
             System.out.println("Finding files to parse...");
             File directory = new File(args[0]);
