@@ -3,9 +3,6 @@ package se.zeldaforumet.josjuice.punparse;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,14 +28,13 @@ public class PunParse {
         // Do the work
         System.out.println("Connecting to SQL database...");
         try (Database database = new Database(args[1], null)) {
-            if (!append) {
+            IdMappings idMappings = new IdMappings();
+            if (append) {
+                // TODO load IdMappings from database
+            } else {
                 System.out.println("Creating tables...");
                 database.createTables();
             }
-            
-            // TODO make this work properly with appending
-            SortedMap<Integer, Integer> postTopicMap = Collections.
-                    synchronizedSortedMap(new TreeMap<Integer, Integer>());
 
             System.out.println("Finding files to parse...");
             File directory = new File(args[0]);
@@ -55,7 +51,7 @@ public class PunParse {
                 }
                 ExecutorService es = Executors.newFixedThreadPool(threads);
                 for (File file : files) {
-                    es.execute(new ParseTask(file, database, ui, postTopicMap));
+                    es.execute(new ParseTask(file, database, ui, idMappings));
                 }
 
                 // Wait for threads to finish before closing database connection

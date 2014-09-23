@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,22 +18,21 @@ public final class ParseTask implements Runnable {
     private final File file;
     private final Database database;
     private final UserInterface ui;
-    private final Map<Integer, Integer> postTopicMap;
+    private final IdMappings idMappings;
     
     /**
      * Creates a {@code ParseThread}.
      * @param file The {@code File} that is to be parsed.
      * @param database A {@link Database} to send data to.
      * @param ui A {@link UserInterface} for progress display, or {@code null}.
-     * @param postTopicMap Used to map posts to topics if the topic ID cannot
-     * be found using page links.
+     * @param idMappings Used when no page links are available for finding IDs.
      */
     public ParseTask(File file, Database database, UserInterface ui,
-                     Map<Integer, Integer> postTopicMap) {
+                     IdMappings idMappings) {
         this.file = file;
         this.database = database;
         this.ui = ui;
-        this.postTopicMap = postTopicMap;
+        this.idMappings = idMappings;
     }
     
     /**
@@ -111,24 +109,18 @@ public final class ParseTask implements Runnable {
         }
         
         // Find topic ID
-        int topicId = findContainerId(element);
-        // TODO handle the case of not finding the topic ID
-        if (topicId == 0) {
-            for (int i = posts.size() - 1; i >= 0; i--) {
-                Integer possibleId = postTopicMap.get(posts.get(i).getId());
-                if (possibleId != null) {
-                    topicId = possibleId;
-                    break;
-                }
-            }
+        Integer topicId = findContainerId(element);
+        if (topicId == null) {
+            topicId = idMappings.getTopicId(posts);
         }
-        
-        // Add the previously parsed posts to database
-        for (Post post : posts) {
-            try {
-                database.insert(post, topicId);
-            } catch (SQLException e) {
-                errors.add("SQL error: " + e.getLocalizedMessage());
+        if (topicId != null) {
+            // Add the previously parsed posts to database
+            for (Post post : posts) {
+                try {
+                    database.insert(post, topicId);
+                } catch (SQLException e) {
+                    errors.add("SQL error: " + e.getLocalizedMessage());
+                }
             }
         }
         
@@ -145,24 +137,26 @@ public final class ParseTask implements Runnable {
      */
     private ArrayList<String> parseViewforum(Element element) {
         ArrayList<String> errors = new ArrayList<>();
-        int forumId = findContainerId(element);
-        
-        // Add all topics to database
-        Elements topicElements = element.getElementsByTag("tr");
-        for (Element topicElement : topicElements) {
-            try {
-                // Skip the top row, which only contains headings
-                if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
-                    Topic topic = new Topic(topicElement, forumId);
-                    if (!topic.isMoved()) { // Moved topics not supported yet
-                        postTopicMap.put(topic.getLastPostId(), topic.getId());
-                        database.insert(topic);
+        Integer forumId = findContainerId(element); // TODO handle null properly
+        if (forumId != null) {
+            // Add all topics to database
+            Elements topicElements = element.getElementsByTag("tr");
+            for (Element topicElement : topicElements) {
+                try {
+                    // Skip the top row, which only contains headings
+                    if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
+                        Topic topic = new Topic(topicElement, forumId);
+                        if (!topic.isMoved()) {// Moved topics not supported yet
+                            idMappings.setTopicId(topic, database, ui);
+                            database.insert(topic);
+                        }
                     }
+                } catch (IllegalArgumentException e) {
+                    errors.add("Error in input data: " +
+                               e.getLocalizedMessage());
+                } catch (SQLException e) {
+                    errors.add("SQL error: " + e.getLocalizedMessage());
                 }
-            } catch (IllegalArgumentException e) {
-                errors.add("Error in input data: " + e.getLocalizedMessage());
-            } catch (SQLException e) {
-                errors.add("SQL error: " + e.getLocalizedMessage());
             }
         }
         return errors;
@@ -222,15 +216,15 @@ public final class ParseTask implements Runnable {
      * Attempts to find the ID of a topic or forum based on page links. If there
      * are no page links, this method will fail and return 0.
      * @param element element containing at least one {@code .pagelink} element
-     * @return the ID indicated in the page links, or 0 when failing
+     * @return the ID indicated in the page links, or {@code null} when failing
      */
-    private static int findContainerId(Element element) {
+    private static Integer findContainerId(Element element) {
         try {
             String topicUrl = element.getElementsByClass("pagelink").first().
                               getElementsByTag("a").first().attr("href");
             return Integer.parseInt(TextParser.getQueryValue(topicUrl, "id"));
         } catch (NumberFormatException | NullPointerException e) {
-            return 0;
+            return null;
         }
     }
 
