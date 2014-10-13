@@ -88,8 +88,8 @@ public class IdMappings {
                 try {
                     database.insert(post, topic.getId());
                 } catch (SQLException e) {
-                    System.err.println("SQL error when submitting queued post #"
-                            + post.getId() + ": " + e.getLocalizedMessage());
+                    System.err.println("SQL error when submitting queued post "+
+                            post.getId() + ": " + e.getLocalizedMessage());
                 }
             }
         }

@@ -8,12 +8,11 @@ import org.jsoup.nodes.Element;
  */
 public final class Post {
     
+    private final PostUser postUser;
     private final boolean isEdited;
     
     // All of the following variables correspond to database columns.
     private final int id;
-    private final String poster;
-    private final int posterId;
     private final String message;
     private final boolean hideSmilies;
     private final long posted;
@@ -41,29 +40,13 @@ public final class Post {
             throw new IllegalArgumentException("Couldn't get post ID.", e);
         }
         
-        try {
-            // Find poster username and ID
-            Element posterElement = element.getElementsByTag("dt").first();
-            // Get poster username
-            poster = posterElement.text();
-            // Check if posted by guest
-            Element posterLink = posterElement.getElementsByTag("a").first();
-            if (posterLink == null) {
-                posterId = 1;   // The ID 1 is used by all guests
-            } else {
-                // Get poster ID from profile URL
-                try {
-                    posterId = Integer.parseInt(TextParser.getQueryValue(
-                               posterLink.attr("href"), "id"));
-                } catch (NullPointerException | NumberFormatException e) {
-                    throw new IllegalArgumentException("Couldn't get poster " +
-                                                       "ID of post " + id, e);
-                }
-            }
-        } catch (NullPointerException e) {
+        // Find poster ID and username
+        Element postleft = element.getElementsByClass("postleft").first();
+        if (postleft == null) {
             throw new IllegalArgumentException("Couldn't get poster " +
-                                               "of post " + id, e);
+                                               "of post " + id);
         }
+        postUser = new PostUser(postleft);
         
         try {
             // Find message text
@@ -87,7 +70,14 @@ public final class Post {
     }
     
     /**
-     * @return {@code true} if the post is marked as edited. (It's possible to
+     * @return {@code PostUser} object for the user that made this post
+     */
+    public PostUser getPostUser() {
+        return postUser;
+    }
+    
+    /**
+     * @return {@code true} if the post is marked as edited. (Moderators can
      * edit a post without marking it as edited by using silent edit.)
      */
     public boolean isEdited() {
@@ -105,14 +95,14 @@ public final class Post {
      * @return Username of the user that made the post
      */
     public String getPoster() {
-        return poster;
+        return postUser.getUsername();
     }
     
     /**
      * @return ID of the user that made the post
      */
     public int getPosterId() {
-        return posterId;
+        return postUser.getId();
     }
     
     /**

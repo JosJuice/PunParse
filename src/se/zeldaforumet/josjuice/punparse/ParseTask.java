@@ -88,7 +88,7 @@ public final class ParseTask implements Runnable {
     private ArrayList<String> parseViewtopic(Element element) {
         ArrayList<String> errors = new ArrayList<>();
         
-        // Store all posts in list, add all user information to database
+        // Store all posts in list
         Elements postElements = element.getElementsByClass("blockpost");
         ArrayList<Post> posts = new ArrayList<>();
         for (Element postElement : postElements) {
@@ -97,15 +97,6 @@ public final class ParseTask implements Runnable {
             } catch (IllegalArgumentException e) {
                 errors.add("Error in input data: " + e.getLocalizedMessage());
             }
-            try {
-                User user = new User(postElement.getElementsByClass("postleft").
-                                     first());
-                database.insert(user);
-            } catch (IllegalArgumentException e) {
-                errors.add("Error in input data: " + e.getLocalizedMessage());
-            } catch (SQLException e) {
-                errors.add("SQL error: " + e.getLocalizedMessage());
-            }
         }
         
         // Find topic ID
@@ -113,14 +104,16 @@ public final class ParseTask implements Runnable {
         if (topicId == null) {
             topicId = idMappings.getTopicId(posts);
         }
-        if (topicId != null) {
-            // Add the previously parsed posts to database
-            for (Post post : posts) {
-                try {
+        
+        // Add the previously parsed posts (including user data) to database
+        for (Post post : posts) {
+            try {
+                if (topicId != null) {
                     database.insert(post, topicId);
-                } catch (SQLException e) {
-                    errors.add("SQL error: " + e.getLocalizedMessage());
                 }
+                database.insert(post.getPostUser());
+            } catch (SQLException e) {
+                errors.add("SQL error: " + e.getLocalizedMessage());
             }
         }
         

@@ -84,19 +84,19 @@ public class Database implements AutoCloseable {
     
     /**
      * Inserts a user into the database.
-     * @param user the user to insert
+     * @param postUser the user to insert
      * @throws SQLException if something goes wrong on the SQL side
      * @throws IllegalStateException if used after calling {@link close()}
      */
-    public synchronized void insert(User user) throws SQLException {
+    public synchronized void insert(PostUser postUser) throws SQLException {
         if (isClosed) {
             throw new IllegalStateException("Closed databases cannot be used.");
         }
         
-        insertUser.setInt(1, user.getId());
-        insertUser.setString(2, user.getUsername());
-        insertUser.setString(3, user.getTitle());
-        insertUser.setBoolean(4, user.getHasAvatar());
+        insertUser.setInt(1, postUser.getId());
+        insertUser.setString(2, postUser.getUsername());
+        insertUser.setString(3, postUser.getTitle());
+        insertUser.setBoolean(4, postUser.getHasAvatar());
         insertUser.executeUpdate();
     }
     

@@ -3,10 +3,11 @@ package se.zeldaforumet.josjuice.punparse;
 import org.jsoup.nodes.Element;
 
 /**
- * Represents a record in the PunBB 'users' table. Immutable.
+ * Represents a record in the PunBB 'users' table. Only contains the columns
+ * that can be found in a post, not ones that only are in profiles. Immutable.
  * @author JosJuice
  */
-public final class User {
+public final class PostUser {
     
     // All of the following variables correspond to database columns.
     private final int id;
@@ -20,19 +21,29 @@ public final class User {
      * The element should always have the {@code .postleft} class.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public User(Element element) throws IllegalArgumentException {
+    public PostUser(Element element) throws IllegalArgumentException {
         try {
-            String userUrl = element.getElementsByTag("a").first().attr("href");
-            id = Integer.parseInt(TextParser.getQueryValue(userUrl, "id"));
-        } catch (NullPointerException | NumberFormatException e) {
-            throw new IllegalArgumentException("Couldn't get user ID.", e);
-        }
-        
-        try {
-            username = element.getElementsByTag("dt").first().text();
+            // Find poster username and ID
+            Element posterElement = element.getElementsByTag("dt").first();
+            // Get poster username
+            username = posterElement.text();
+            // Check if posted by guest
+            Element posterLink = posterElement.getElementsByTag("a").first();
+            if (posterLink == null) {
+                id = 1; // The ID 1 is used by all guests
+            } else {
+                // Get poster ID from profile URL
+                try {
+                    id = Integer.parseInt(TextParser.getQueryValue(
+                                          posterLink.attr("href"), "id"));
+                } catch (NullPointerException | NumberFormatException e) {
+                    throw new IllegalArgumentException("Couldn't get poster " +
+                                                       "ID of post", e);
+                }
+            }
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException("Couldn't get username " +
-                                               "of user " + id, e);
+            throw new IllegalArgumentException("Couldn't get poster " +
+                                               "of post", e);
         }
         
         try {
