@@ -14,25 +14,26 @@ public final class PostUser {
     private final String username;
     private final String title;
     private final boolean hasAvatar;
+    private final String signature;
     
     /**
      * Constructs a {@code User}.
      * @param element HTML element representing the user information in a post.
-     * The element should always have the {@code .postleft} class.
+     * The element should always have the {@code .blockpost} class.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
     public PostUser(Element element) throws IllegalArgumentException {
         try {
-            // Find poster username and ID
+            // Find username and ID
             Element posterElement = element.getElementsByTag("dt").first();
-            // Get poster username
+            // Get username
             username = posterElement.text();
-            // Check if posted by guest
+            // Check if this is a guest
             Element posterLink = posterElement.getElementsByTag("a").first();
             if (posterLink == null) {
                 id = 1; // The ID 1 is used by all guests
             } else {
-                // Get poster ID from profile URL
+                // Get ID from profile URL
                 try {
                     id = Integer.parseInt(TextParser.getQueryValue(
                                           posterLink.attr("href"), "id"));
@@ -47,13 +48,25 @@ public final class PostUser {
         }
         
         try {
+            // Get title
             title = element.getElementsByClass("usertitle").first().text();
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Couldn't get user title " +
                                                "of user " + id, e);
         }
         
+        // Find out whether the user is using an avatar
         hasAvatar = !element.getElementsByClass("postavatar").isEmpty();
+        
+        // Find signature
+        Element postsignature =
+                element.getElementsByClass("postsignature").first();
+        if (postsignature == null) {
+            signature = null;
+        } else {
+            // Parse signature to BBCode
+            signature = TextParser.parseMessage(postsignature);
+        }
     }
     
     /**
@@ -82,6 +95,13 @@ public final class PostUser {
      */
     public boolean getHasAvatar() {
         return hasAvatar;
+    }
+    
+    /**
+     * @return Signature in BBCode, or {@code null} if there is no signature
+     */
+    public String getSignature() {
+        return signature;
     }
     
 }

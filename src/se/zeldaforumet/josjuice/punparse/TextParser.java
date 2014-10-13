@@ -14,7 +14,7 @@ public class TextParser {
     /**
      * Converts a message (such as a post or signature) from HTML to BBCode.
      * @param element a {@code .postmsg} or {@code postsignature} element
-     * @return the raw text of the message
+     * @return the message in BBCode
      */
     public static String parseMessage(Element element) {
         return parseMessage(new StringBuilder(), element).toString();
@@ -79,7 +79,7 @@ public class TextParser {
                 sb.append("[/i]");
                 break;
             case "img":
-                if (elem.hasClass("postimg")) { // External image
+                if (elem.hasClass("postimg") || elem.hasClass("sigimage")) {
                     sb.append("[img]");
                     sb.append(elem.attr("src"));
                     sb.append("[/img]");

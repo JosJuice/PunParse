@@ -20,7 +20,7 @@ public class Database implements AutoCloseable {
     private final String prefix;
     private boolean isClosed = false;
     
-    private final PreparedStatement insertUser;
+    private final PreparedStatement insertPostUser;
     private final PreparedStatement insertPost;
     private final PreparedStatement insertTopic;
     private final PreparedStatement insertForum;
@@ -47,9 +47,9 @@ public class Database implements AutoCloseable {
         connection = DriverManager.getConnection("jdbc:" + url);
         type = Type.MYSQL;          // TODO detect database type
         
-        insertUser = connection.prepareStatement("INSERT " + type.ignore +
-                "INTO " + prefix + "users (id, username, title, use_avatar) " +
-                "VALUES(?, ?, ?, ?);");
+        insertPostUser = connection.prepareStatement("INSERT " + type.ignore +
+                "INTO " + prefix + "users (id, username, title, use_avatar, " +
+                "signature) VALUES(?, ?, ?, ?, ?);");
         insertPost = connection.prepareStatement("INSERT " + type.ignore +
                 "INTO " + prefix + "posts (id, poster, poster_id, message, " +
                 "hide_smilies, posted, edited, edited_by, topic_id) " +
@@ -93,11 +93,12 @@ public class Database implements AutoCloseable {
             throw new IllegalStateException("Closed databases cannot be used.");
         }
         
-        insertUser.setInt(1, postUser.getId());
-        insertUser.setString(2, postUser.getUsername());
-        insertUser.setString(3, postUser.getTitle());
-        insertUser.setBoolean(4, postUser.getHasAvatar());
-        insertUser.executeUpdate();
+        insertPostUser.setInt(1, postUser.getId());
+        insertPostUser.setString(2, postUser.getUsername());
+        insertPostUser.setString(3, postUser.getTitle());
+        insertPostUser.setBoolean(4, postUser.getHasAvatar());
+        insertPostUser.setString(5, postUser.getSignature());
+        insertPostUser.executeUpdate();
     }
     
     /**

@@ -41,12 +41,7 @@ public final class Post {
         }
         
         // Find poster ID and username
-        Element postleft = element.getElementsByClass("postleft").first();
-        if (postleft == null) {
-            throw new IllegalArgumentException("Couldn't get poster " +
-                                               "of post " + id);
-        }
-        postUser = new PostUser(postleft);
+        postUser = new PostUser(element);
         
         try {
             // Find message text
@@ -106,7 +101,7 @@ public final class Post {
     }
     
     /**
-     * @return The content of the post
+     * @return The content of the post in BBCode
      */
     public String getMessage() {
         return message;
