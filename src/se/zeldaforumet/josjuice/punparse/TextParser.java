@@ -93,10 +93,10 @@ public class TextParser {
                     sb.append("[u]");
                     parseMessage(sb, elem.childNodes());
                     sb.append("[/u]");
-                    break;
                 } else {
                     parseMessage(sb, elem.childNodes());
                 }
+                break;
             default:
                 parseMessage(sb, elem.childNodes());
                 break;
