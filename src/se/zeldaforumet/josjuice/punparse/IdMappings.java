@@ -97,4 +97,27 @@ public class IdMappings {
     
     // TODO forum mappings
     
+    /**
+     * Submits all queued posts to a database. Intended to be used before
+     * exiting to submit posts that couldn't be associated with a topic.
+     * @param topicId The topic ID associate the posts with.
+     * @param database A {@link Database} that data can be sent to.
+     */
+    public void submitAllQueuedPosts(int topicId, Database database) {
+        synchronized (postTopicMap) {
+            while (!postQueue.isEmpty()) {
+                for (Post post : postQueue.firstEntry().getValue()) {
+                    postQueue.remove(post.getId());
+                    try {
+                        database.insert(post, topicId);
+                    } catch (SQLException e) {
+                        System.err.println("SQL error when submitting queued " +
+                                           "post " + post.getId() + ": " +
+                                           e.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+    }
+    
 }

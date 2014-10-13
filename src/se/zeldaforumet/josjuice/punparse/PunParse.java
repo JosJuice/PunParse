@@ -54,7 +54,7 @@ public class PunParse {
                     es.execute(new ParseTask(file, database, ui, idMappings));
                 }
 
-                // Wait for threads to finish before closing database connection
+                // Wait for threads to finish
                 es.shutdown();
                 boolean isDone = false;
                 while (!isDone) {
@@ -62,6 +62,9 @@ public class PunParse {
                         isDone = es.awaitTermination(1, TimeUnit.DAYS);
                     } catch (InterruptedException e) {}
                 }
+                
+                // Cleanup
+                idMappings.submitAllQueuedPosts(0, database);
             }
         } catch (SQLException e) {
             System.err.println("SQL error: " + e.getLocalizedMessage());
