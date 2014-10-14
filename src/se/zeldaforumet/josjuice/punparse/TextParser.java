@@ -45,7 +45,7 @@ public class TextParser {
                 Element incqbox = elem.children().first();
                 if (incqbox != null) {
                     Element h4 = incqbox.children().first();
-                    if (h4 != null) {
+                    if (h4 != null && h4.tagName().equals("h4")) {
                         quoteAuthor = h4.text();
                     }
                 }
