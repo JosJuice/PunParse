@@ -1,5 +1,8 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
 import org.jsoup.nodes.Element;
 
 /**
@@ -23,9 +26,11 @@ public final class Post {
      * Constructs a {@code Post}.
      * @param element HTML element representing a post.
      * The element should always have the {@code .blockpost} class.
+     * @param dateFormat A {@link DateFormat} for parsing dates.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Post(Element element) throws IllegalArgumentException {
+    public Post(Element element, DateFormat dateFormat)
+            throws IllegalArgumentException {
         try {
             // Find post ID
             String idText = element.id();
@@ -55,8 +60,20 @@ public final class Post {
                                                "of post " + id, e);
         }
         
-        // TODO find time posted
-        posted = id;
+        try {
+            // Find the date the message was posted
+            String dateString = element.getElementsByTag("a").first().text();
+            try {
+                // Parse the date
+                long dateMilliseconds = dateFormat.parse(dateString).getTime();
+                posted = TimeUnit.MILLISECONDS.toSeconds(dateMilliseconds);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e.getLocalizedMessage());
+            }
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("Couldn't get date of post " +
+                                               id, e);
+        }
         
         // TODO find out if edited
         isEdited = false;

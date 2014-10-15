@@ -10,9 +10,7 @@ an SQL database. Currently, only MySQL is supported. Support for
 PostgreSQL and SQLite is under development. However, PostgreSQL has not
 been tested, and there is currently a problem; normally, nothing happens
 when PunParse tries to create a record with a primary key that already
-exists, but with PostgreSQL, an error will occur. One case where this
-happens is when one record (for instance, a post) is present in two HTML
-files.
+exists, but with PostgreSQL, an error will occur.
 
 Arguments
 ---------
@@ -26,3 +24,8 @@ PunParse requires two command line arguments, in this order:
 There are also optional command line arguments:
 * `--append` makes PunParse skip creating tables and indexes. This is
   useful if you want to append data to an existing database.
+* `--dateformat` sets the date format that PunParse will use. Use it
+  like this: `"--dateformat=yyyy-MM-DD HH:mm:ss"`. Note that the double
+  quotes around this argument are necessary if the date format contains
+  spaces. If this argument is not used, the default format
+  `yyyy-MM-DD HH:mm:ss` will be used.
