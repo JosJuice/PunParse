@@ -1,5 +1,6 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import java.text.ParseException;
 import org.jsoup.nodes.Element;
 
 /**
@@ -18,7 +19,7 @@ public final class Forum {
     // TODO moderators
     private final int numTopics;
     private final int numPosts;
-    private final int lastPosted;
+    private final long lastPosted;
     private final int lastPostId;
     private final String lastPoster;
     private final boolean sortByTopicStart;
@@ -28,10 +29,13 @@ public final class Forum {
     /**
      * Constructs a {@code Forum}.
      * @param element An HTML {@code tr} element from {@code index.php}.
+     * @param dateParser A {@link DateParser} for parsing dates.
+     * @param displayPosition Forums are sorted by this value when displayed.
+     * @param categoryId The ID of the category that contains this forum.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Forum(Element element, int displayPosition, int categoryId)
-            throws IllegalArgumentException {
+    public Forum(Element element, DateParser dateParser, int displayPosition,
+                 int categoryId) throws IllegalArgumentException {
         // Reject elements that would cause problems later
         if (element == null || !element.tagName().equals("tr")) {
             throw new IllegalArgumentException("Invalid forum element.");
@@ -107,6 +111,7 @@ public final class Forum {
             if (!tcr.hasText() || tcr.text().equals("\u00A0")) {
                 // There is no recent post, so we use the default values.
                 // This applies to empty forums and redirect forums.
+                lastPosted = 0;
                 lastPostId = 0;
                 lastPoster = null;
             } else {
@@ -116,24 +121,24 @@ public final class Forum {
                 String postUrl = postLink.attr("href");
                 lastPostId = Integer.parseInt(
                         TextParser.getQueryValue(postUrl, "pid"));
+                // Find last date posted
+                lastPosted = dateParser.parse(postLink.text());
                 
                 try {
                     // Find poster username
                     // TODO remove the "by " at the beginning
-                    // TODO make this line 80 characters long LIKE IT SHOULD BE
-                    lastPoster = tcr.getElementsByClass("byuser").first().text();
+                    lastPoster=tcr.getElementsByClass("byuser").first().text();
                 } catch (NullPointerException | IndexOutOfBoundsException e) {
                     throw new IllegalArgumentException("Couldn't get last " +
                                                        "poster in forum " + id,
                                                        e);
                 }
             }
-            
-            // TODO find the actual time
-            lastPosted = lastPostId;
         } catch (NullPointerException | NumberFormatException e) {
             throw new IllegalArgumentException("Couldn't get ID of last " +
                                                "post in forum " + id, e);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e.getLocalizedMessage());
         }
         
         // TODO get the actual value of this somehow
@@ -199,7 +204,7 @@ public final class Forum {
      * @return The time the last post was posted (Unix timestamp), or 0 if there
      * are no posts
      */
-    public int getLastPosted() {
+    public long getLastPosted() {
         return lastPosted;
     }
     

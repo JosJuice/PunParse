@@ -141,7 +141,8 @@ public final class ParseTask implements Runnable {
                 try {
                     // Skip the top row, which only contains headings
                     if (!topicElement.getElementsByClass("tclcon").isEmpty()) {
-                        Topic topic = new Topic(topicElement, forumId);
+                        Topic topic = new Topic(topicElement, dateParser,
+                                                forumId);
                         if (!topic.isMoved()) {// Moved topics not supported yet
                             idMappings.setTopicId(topic, database, ui);
                             database.insert(topic);
@@ -186,8 +187,8 @@ public final class ParseTask implements Runnable {
                     // This if skips the first row, which only has headings
                     if (forumPosition >= 0) {
                         try {
-                            Forum forum = new Forum(forumElement, forumPosition,
-                                                    category.getId());
+                            Forum forum = new Forum(forumElement, dateParser,
+                                    forumPosition, category.getId());
                             database.insert(forum);
                         } catch (IllegalArgumentException e) {
                             errors.add("Error in input data: " +

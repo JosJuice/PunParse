@@ -24,7 +24,7 @@ public final class Post {
      * Constructs a {@code Post}.
      * @param element HTML element representing a post.
      * The element should always have the {@code .blockpost} class.
-     * @param dateFormat A {@link DateFormat} for parsing dates.
+     * @param dateParser A {@link DateParser} for parsing dates.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
     public Post(Element element, DateParser dateParser)

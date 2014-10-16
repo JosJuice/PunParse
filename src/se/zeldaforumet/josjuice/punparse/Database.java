@@ -186,7 +186,7 @@ public class Database implements AutoCloseable {
             insertForum.setString(3, forum.getDescription());
             insertForum.setInt(4, forum.getNumTopics());
             insertForum.setInt(5, forum.getNumPosts());
-            insertForum.setInt(6, forum.getLastPosted());
+            insertForum.setLong(6, forum.getLastPosted());
             insertForum.setInt(7, forum.getLastPostId());
             insertForum.setString(8, forum.getLastPoster());
             insertForum.setBoolean(9, forum.getSortByTopicStart());

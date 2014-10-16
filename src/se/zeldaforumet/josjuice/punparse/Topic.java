@@ -1,5 +1,6 @@
 package se.zeldaforumet.josjuice.punparse;
 
+import java.text.ParseException;
 import org.jsoup.nodes.Element;
 
 /**
@@ -28,10 +29,12 @@ public final class Topic {
     /**
      * Constructs a {@code Topic}.
      * @param element An HTML {@code tr} element from {@code viewforum.php}.
-     * @param forumId ID of the forum containing this topic.
+     * @param dateParser A {@link DateParser} for parsing dates.
+     * @param forumId The ID of the forum that contains this topic.
      * @throws IllegalArgumentException if required parts of HTML are missing
      */
-    public Topic(Element element, int forumId) throws IllegalArgumentException {
+    public Topic(Element element, DateParser dateParser, int forumId)
+            throws IllegalArgumentException {
         try {
             // Find the main text
             Element tclcon = element.getElementsByClass("tclcon").first();
@@ -89,6 +92,7 @@ public final class Topic {
         }
         
         if (isMoved) {
+            lastPosted = 0;
             lastPostId = 0;
             lastPoster = null;
         } else {
@@ -101,6 +105,9 @@ public final class Topic {
                 String postUrl = postLink.attr("href");
                 lastPostId = Integer.parseInt(
                         TextParser.getQueryValue(postUrl, "pid"));
+                // Find last date posted
+                lastPosted = dateParser.parse(postLink.text());
+                
                 try {
                     // Find poster username
                     lastPoster = getPoster(tcr);
@@ -112,12 +119,13 @@ public final class Topic {
             } catch (NullPointerException | NumberFormatException e) {
                 throw new IllegalArgumentException("Couldn't get ID of last " +
                                                    "post in topic " + id, e);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e.getLocalizedMessage());
             }
         }
         
-        // TODO find the actual times
+        // TODO find the actual time the topic was posted
         posted = id;
-        lastPosted = lastPostId;
         
         // Set forum ID
         this.forumId = forumId;
