@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * Parses data from PunBB HTML output to an SQL database.
  * @author JosJuice
  */
-public class PunParse {
+public final class PunParse {
     
     /**
      * @param args the command line arguments

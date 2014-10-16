@@ -9,7 +9,7 @@ import org.jsoup.nodes.TextNode;
  * Contains various static methods for parsing text.
  * @author JosJuice
  */
-public class TextParser {
+public final class TextParser {
     
     /**
      * Converts a message (such as a post or signature) from HTML to BBCode.

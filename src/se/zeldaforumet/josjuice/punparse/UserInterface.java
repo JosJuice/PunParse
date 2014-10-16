@@ -7,7 +7,7 @@ import java.util.Collection;
  * output. Thread safe.
  * @author Jos
  */
-public class UserInterface {
+public final class UserInterface {
     
     private int progress = 0;
     private int goal = 0;

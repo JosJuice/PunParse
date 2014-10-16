@@ -13,7 +13,7 @@ import java.sql.Types;
  * connection to the database only can be used by one thread at a time.
  * @author JosJuice
  */
-public class Database implements AutoCloseable {
+public final class Database implements AutoCloseable {
     
     private final Connection connection;
     private final Type type;

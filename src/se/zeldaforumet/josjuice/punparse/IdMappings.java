@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * Thread safe.
  * @author JosJuice
  */
-public class IdMappings {
+public final class IdMappings {
     
     /*
      * Maps topic IDs to posts.

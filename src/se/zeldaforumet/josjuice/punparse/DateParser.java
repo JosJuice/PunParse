@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
  * Parses date strings to Unix timestamps. Thread safe.
  * @author JosJuice
  */
-public class DateParser {
+public final class DateParser {
     
     private final SimpleDateFormat dateFormat;
     
