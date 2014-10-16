@@ -2,8 +2,6 @@ package se.zeldaforumet.josjuice.punparse;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +19,6 @@ public class PunParse {
     public static void main(String[] args) {
         // Find optional arguments
         boolean append = false;
-        // TODO time zones
         String dateFormat = "yyyy-MM-DD HH:mm:ss";
         for (String arg : args) {
             if (arg.equals("--append")) {
@@ -31,6 +28,7 @@ public class PunParse {
                 dateFormat = arg.substring(13);
             }
         }
+        DateParser dateParser = new DateParser(dateFormat);
         
         // Do the work
         System.out.println("Connecting to SQL database...");
@@ -60,9 +58,7 @@ public class PunParse {
                 try {
                     for (File file : files) {
                         es.execute(new ParseTask(file, database, ui, idMappings,
-                                   new SimpleDateFormat(dateFormat)));
-                        // SimpleDateFormat isn't thread-safe and can thus not
-                        // be shared across threads
+                                   dateParser));
                     }
                 } catch (IllegalArgumentException e) {
                     System.err.println("Invalid date format: " + dateFormat);

@@ -3,7 +3,6 @@ package se.zeldaforumet.josjuice.punparse;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,7 +19,7 @@ public final class ParseTask implements Runnable {
     private final Database database;
     private final UserInterface ui;
     private final IdMappings idMappings;
-    private final DateFormat dateFormat;
+    private final DateParser dateParser;
     
     /**
      * Creates a {@code ParseThread}.
@@ -31,12 +30,12 @@ public final class ParseTask implements Runnable {
      * @param idMappings Used when no page links are available for finding IDs.
      */
     public ParseTask(File file, Database database, UserInterface ui,
-                     IdMappings idMappings, DateFormat dateFormat) {
+                     IdMappings idMappings, DateParser dateParser) {
         this.file = file;
         this.database = database;
         this.ui = ui;
         this.idMappings = idMappings;
-        this.dateFormat = dateFormat;
+        this.dateParser = dateParser;
     }
     
     /**
@@ -97,7 +96,7 @@ public final class ParseTask implements Runnable {
         ArrayList<Post> posts = new ArrayList<>();
         for (Element postElement : postElements) {
             try {
-                posts.add(new Post(postElement, dateFormat));
+                posts.add(new Post(postElement, dateParser));
             } catch (IllegalArgumentException e) {
                 errors.add("Error in input data: " + e.getLocalizedMessage());
             }
