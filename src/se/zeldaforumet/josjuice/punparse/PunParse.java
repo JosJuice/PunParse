@@ -19,7 +19,7 @@ public final class PunParse {
     public static void main(String[] args) {
         // Find optional arguments
         boolean append = false;
-        String dateFormat = "yyyy-MM-DD HH:mm:ss";
+        String dateFormat = "yyyy-MM-dd HH:mm:ss";
         for (String arg : args) {
             if (arg.equals("--append")) {
                 append = true;

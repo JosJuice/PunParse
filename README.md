@@ -25,7 +25,7 @@ There are also optional command line arguments:
 * `--append` makes PunParse skip creating tables and indexes. This is
   useful if you want to append data to an existing database.
 * `--dateformat` sets the date format that PunParse will use. Use it
-  like this: `"--dateformat=yyyy-MM-DD HH:mm:ss"`. Note that the double
+  like this: `"--dateformat=yyyy-MM-dd HH:mm:ss"`. Note that the double
   quotes around this argument are necessary if the date format contains
   spaces. If this argument is not used, the default format
-  `yyyy-MM-DD HH:mm:ss` will be used.
+  `yyyy-MM-dd HH:mm:ss` will be used.
