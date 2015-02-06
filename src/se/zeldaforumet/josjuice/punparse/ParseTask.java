@@ -211,7 +211,7 @@ public final class ParseTask implements Runnable {
     
     /**
      * Attempts to find the ID of a topic or forum based on page links. If there
-     * are no page links, this method will fail and return 0.
+     * are no page links, this method will fail and return {@code null}.
      * @param element element containing at least one {@code .pagelink} element
      * @return the ID indicated in the page links, or {@code null} when failing
      */
